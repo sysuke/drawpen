@@ -62,6 +62,8 @@ public class PenView extends View {
 	private boolean mFastP = true;
 	
 	private int mWaitTime = 1000;
+	private int mMagnif = 1;
+
 	private boolean mFastLine = true;
 
 	private double Ri[][];
@@ -542,7 +544,8 @@ public class PenView extends View {
 	// 相対座標入力による描画
 	public boolean setMovePoint(boolean push, int x, int y) {
 		Log.d(TAG, "X" + x + " Y" + y + " push" + push);
-
+		x*=mMagnif;
+		y*=mMagnif;
 
 		// 線幅が画面幅を超えた場合の縮小倍率設定
 		double magX = 1, magY = 1;
@@ -788,7 +791,6 @@ public class PenView extends View {
 				}
 				invalidate();
 				mFastP=true;
-
 				isPush = false;
 			}
 		}
@@ -898,6 +900,12 @@ public class PenView extends View {
 		reissueMessage();
 		return true;
 	}
+	// 画像送信までの時間設定
+	public boolean setMagnification(int mag) {
+		mMagnif = mag;
+		reissueMessage();
+		return true;
+	}
 
 	// x分戻す
 	public boolean undo(int x) {
@@ -926,7 +934,6 @@ Log.d(TAG, "undo bsize:" + bsize + " size:" + size);
 			}
 		}
 		invalidate();
-
 		return true;
 	}
 
@@ -934,7 +941,6 @@ Log.d(TAG, "undo bsize:" + bsize + " size:" + size);
 	public boolean redo(int x) {
 		// TODO
 		reissueMessage();
-
 		return true;
 	}
 

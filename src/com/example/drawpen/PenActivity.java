@@ -34,6 +34,7 @@ import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.NumberPicker.OnValueChangeListener;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.ToggleButton;
 
 public class PenActivity extends Activity implements OnClickListener,
@@ -42,13 +43,18 @@ public class PenActivity extends Activity implements OnClickListener,
 	boolean DEBUG = false;
 
 	boolean waitt_toggle = true;
+	boolean mag_toggle = true;
+
 	boolean color_toggle = true;
 	boolean pen_toggle = true;
 
 	final public int UP_DOWN = 0;
 	final public int LEFT_RIGHT = 1;
 	private NumberPicker nump_waittime;
+	private NumberPicker nump_manif;
+
 	private ImageButton imgb_timeconf;
+	private ImageButton imgb_magnif;
 	private ImageButton imgb_erase;
 
 	private ImageButton imgb_setcolor;
@@ -92,6 +98,8 @@ public class PenActivity extends Activity implements OnClickListener,
 	private RelativeLayout drawTitle;
 	private RelativeLayout drawview;
 	private RelativeLayout waittimeview;
+	private RelativeLayout magnifview;
+
 	private RelativeLayout colorview;
 	private RelativeLayout pensizeview;
 
@@ -178,15 +186,22 @@ public class PenActivity extends Activity implements OnClickListener,
 		nump_waittime.setOnValueChangedListener(this);
 		nump_waittime.setMaxValue(10);
 		nump_waittime.setMinValue(0);
-		int defvalue = 3;
-		nump_waittime.setValue(defvalue);
-		penView.setWaitTime(defvalue * 1000);
+		nump_waittime.setValue(3);
+		penView.setWaitTime(3 * 1000);
+		magnifview = (RelativeLayout) findViewById(R.id.magnif_layout);
+		nump_manif = (NumberPicker) findViewById(R.id.magnif_picr);
+		nump_manif.setOnValueChangedListener(this);
+		nump_manif.setMaxValue(10);
+		nump_manif.setMinValue(1);
+		nump_manif.setValue(1);
 
 		colorview = (RelativeLayout) findViewById(R.id.setcolor_layout);
 		imgb_setcolor = (ImageButton) findViewById(R.id.setcolor_btn);
 		imgb_setcolor.setOnClickListener(this);
 		imgb_timeconf = (ImageButton) findViewById(R.id.timeconf_btn);
 		imgb_timeconf.setOnClickListener(this);
+		imgb_magnif = (ImageButton) findViewById(R.id.magnif_btn);
+		imgb_magnif.setOnClickListener(this);
 		imgb_erase = (ImageButton) findViewById(R.id.erase_btn);
 		imgb_erase.setOnClickListener(this);
 		imgb_colorblack = (ImageButton) findViewById(R.id.colorblack_btn);
@@ -271,7 +286,6 @@ public class PenActivity extends Activity implements OnClickListener,
 			et_x.setVisibility(RelativeInputView.VISIBLE);
 			et_y.setVisibility(RelativeInputView.VISIBLE);
 			bt_setBmp.setVisibility(RelativeInputView.VISIBLE);
-
 		} else {
 			inputview.setVisibility(RelativeInputView.INVISIBLE);
 			bt_move.setVisibility(RelativeInputView.GONE);
@@ -279,22 +293,15 @@ public class PenActivity extends Activity implements OnClickListener,
 			et_x.setVisibility(RelativeInputView.GONE);
 			et_y.setVisibility(RelativeInputView.GONE);
 			bt_setBmp.setVisibility(RelativeInputView.INVISIBLE);
-
 		}
 
 		if (mSharedPreferences.getBoolean("ch_send_button", false)) {
-			Log.e(TAG, "send");
-
 			bt_sendBmp.setVisibility(Button.VISIBLE);
 		} else {
-			Log.e(TAG, "dont send");
-
 			bt_sendBmp.setVisibility(Button.GONE);
-
 		}
 
 		if (mSharedPreferences.getBoolean("ch_draw_button", false)) {
-
 			if (isIn_up) {
 				bt_canvasOut.setVisibility(Button.VISIBLE);
 			} else {
@@ -303,10 +310,8 @@ public class PenActivity extends Activity implements OnClickListener,
 		} else {
 			if (isIn_up) {
 				slideOut(UP_DOWN);
-
 				bt_canvasOut.setVisibility(Button.GONE);
 				canvasIn.setVisibility(Button.INVISIBLE);
-
 			} else {
 				canvasIn.setVisibility(Button.INVISIBLE);
 			}
@@ -364,12 +369,30 @@ public class PenActivity extends Activity implements OnClickListener,
 				int[] location = new int[2];
 				imgb_timeconf.getLocationInWindow(location);
 				waittimeview.setTranslationX(location[0]
-						- (64 - view.getWidth()) / 2);
+						- (waittimeview.getWidth() -imgb_timeconf.getWidth())/2 -5);
 
 				waittimeview.setVisibility(RelativeLayout.VISIBLE);
 			} else {
 				waitt_toggle = true;
 				waittimeview.setVisibility(RelativeLayout.INVISIBLE);
+			}
+			break;
+		case R.id.magnif_btn:
+			int[] anchorPos_mag= new int[2];
+			view.getLocationOnScreen(anchorPos_mag);
+
+			if (mag_toggle) {
+				mag_toggle = false;
+
+				int[] location = new int[2];
+				imgb_magnif.getLocationInWindow(location);
+				magnifview.setTranslationX(location[0]
+						- (magnifview.getWidth() -imgb_magnif.getWidth())/2 -5);
+
+				magnifview.setVisibility(RelativeLayout.VISIBLE);
+			} else {
+				mag_toggle = true;
+				magnifview.setVisibility(RelativeLayout.INVISIBLE);
 			}
 			break;
 		case R.id.erase_btn:
@@ -505,6 +528,7 @@ public class PenActivity extends Activity implements OnClickListener,
 				isIn = true;
 				bt_toolIn.setVisibility(Button.INVISIBLE);
 				bt_toolOut.setVisibility(Button.VISIBLE);
+				Log.e(TAG,"vis 2");
 
 				toolbarView.setVisibility(LinearLayout.INVISIBLE);
 				toolbarView.setPadding(0, 0, 0, 0);
@@ -525,6 +549,8 @@ public class PenActivity extends Activity implements OnClickListener,
 
 				toolbarView.startAnimation(trans);
 				bt_toolOut.startAnimation(trans2);
+				Log.e(TAG,"visanim in");
+
 			}
 			break;
 		case UP_DOWN:
@@ -571,6 +597,7 @@ public class PenActivity extends Activity implements OnClickListener,
 				isIn = false;
 
 				toolbarView.setVisibility(LinearLayout.INVISIBLE);
+				bt_toolOut.setVisibility(LinearLayout.INVISIBLE);
 
 				TranslateAnimation trans = new TranslateAnimation(0,
 						toolbarView.getWidth(), 0, 0);
@@ -588,6 +615,8 @@ public class PenActivity extends Activity implements OnClickListener,
 
 				toolbarView.startAnimation(trans);
 				bt_toolOut.startAnimation(trans2);
+				Log.e(TAG,"visanim out");
+
 			}
 			break;
 
@@ -626,20 +655,18 @@ public class PenActivity extends Activity implements OnClickListener,
 
 			toolbarView.setVisibility(LinearLayout.VISIBLE);
 			bt_toolOut.setImageDrawable(getResources().getDrawable(
-					R.drawable.arrow_right));
+					R.drawable.tool_right));
 
 			bt_toolOut.setVisibility(Button.VISIBLE);
+			Log.e(TAG,"vis 1");
+
 		} else {	
+			Log.e(TAG,"invis 2");
 			bt_toolOut.setVisibility(Button.INVISIBLE);
 		
-			int width = toolbarView.getWidth();
-			toolbarView.setPadding(width, 0, -1 * width, 0);
-			toolbarView.setVisibility(LinearLayout.INVISIBLE);
-
 			bt_toolIn.setVisibility(Button.VISIBLE);
-			bt_toolOut.setVisibility(Button.INVISIBLE);
 			bt_toolOut.setImageDrawable(getResources().getDrawable(
-					R.drawable.arrow_left));
+					R.drawable.tool_left));
 
 		}
 
@@ -681,11 +708,14 @@ public class PenActivity extends Activity implements OnClickListener,
 	// アニメーション繰り返し時の処理
 	@Override
 	public void onAnimationRepeat(Animation animation) {
+		return;
+
 	}
 
 	// アニメーション開始時の処理
 	@Override
 	public void onAnimationStart(Animation animation) {
+		return;
 	}
 
 	// 画像送信時間変更用NumberPickerの値取得
@@ -695,9 +725,11 @@ public class PenActivity extends Activity implements OnClickListener,
 		case R.id.waittime_picr:
 			penView.setWaitTime(newVal * 1000);
 			break;
+		case R.id.magnif_picr:
+			penView.setMagnification(newVal);
+			break;
 		default:
 			break;
 		}
 	}
-
 }

@@ -33,7 +33,7 @@ public class DocumentView extends View {
 
 	protected void onDraw(Canvas canvas) {
 
-		canvas.drawColor(Color.rgb(255, 255, 128));
+		canvas.drawColor(Color.rgb(255, 240, 175));
 
 		int lastX = 0;
 		int lastY = 0;

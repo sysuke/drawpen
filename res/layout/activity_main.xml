@@ -28,15 +28,15 @@
 
         <ImageButton
             android:id="@+id/bt_toolOut"
-            android:layout_width="40dp"
-            android:layout_height="fill_parent"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
             android:layout_gravity="right"
             android:adjustViewBounds="true"
-            android:background="#AA000000"
+            android:background="@android:drawable/editbox_background_normal"
             android:paddingBottom="5dp"
             android:paddingTop="5dp"
             android:scaleType="fitXY"
-            android:src="@drawable/arrow_right" />
+            android:src="@drawable/tool_right" />
 
         <HorizontalScrollView
             android:id="@+id/ScrollView"
@@ -53,7 +53,7 @@
                 android:layout_alignParentRight="true"
                 android:layout_alignParentTop="true"
                 android:layout_gravity="right|center"
-                android:background="#AA000000"
+                android:background="@android:drawable/editbox_background_normal"
                 android:gravity="left"
                 android:orientation="horizontal"
                 android:weightSum="11"
@@ -66,7 +66,8 @@
                     android:layout_width="80dp"
                     android:layout_height="fill_parent"
                     android:background="@drawable/menu_color"
-                    android:text="[MOVE]"
+                    android:text="@string/move_button"
+                    android:textColor="#000000"
                     android:visibility="gone" />
 
                 <ToggleButton
@@ -74,6 +75,7 @@
                     android:layout_width="40dp"
                     android:layout_height="fill_parent"
                     android:background="@drawable/menu_color"
+                    android:textColor="#000000"
                     android:visibility="gone" />
 
                 <EditText
@@ -82,7 +84,8 @@
                     android:layout_height="fill_parent"
                     android:background="@drawable/menu_color"
                     android:inputType="numberSigned"
-                    android:text="10"
+                    android:text="@string/edit_default_value"
+                    android:textColor="#000000"
                     android:visibility="gone" />
 
                 <EditText
@@ -92,18 +95,21 @@
                     android:layout_marginLeft="5dp"
                     android:background="@drawable/menu_color"
                     android:inputType="numberSigned"
-                    android:text="10"
+                    android:text="@string/edit_default_value"
+                    android:textColor="#000000"
                     android:visibility="gone" />
                 <!-- TEST -->
 
                 <ImageButton
                     android:id="@+id/allc_btn"
-                    android:layout_width="40dp"
-                    android:layout_height="match_parent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_marginLeft="5dp"
+                    android:adjustViewBounds="true"
                     android:background="@drawable/menu_color"
                     android:padding="3dp"
-                    android:src="@drawable/menu_erase"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/tool_clear"
                     android:visibility="visible" />
 
                 <Button
@@ -112,27 +118,41 @@
                     android:layout_height="fill_parent"
                     android:layout_marginLeft="5dp"
                     android:background="@drawable/menu_color"
-                    android:text="BS" />
+                    android:text="@string/backspace_button"
+                    android:textColor="#000000" />
 
                 <ImageButton
                     android:id="@+id/timeconf_btn"
-                    android:layout_width="40dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="5dp"
                     android:adjustViewBounds="true"
                     android:background="@drawable/menu_color"
                     android:paddingTop="3dp"
                     android:scaleType="fitXY"
-                    android:src="@drawable/ic_dialog_time" />
+                    android:src="@drawable/tool_time" />
+
+                <ImageButton
+                    android:id="@+id/magnif_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:adjustViewBounds="true"
+                    android:background="@drawable/menu_color"
+                    android:paddingTop="3dp"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/tool_arrow" />
 
                 <ImageButton
                     android:id="@+id/pref_btn"
-                    android:layout_width="40dp"
-                    android:layout_height="match_parent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_marginLeft="5dp"
+                    android:adjustViewBounds="true"
                     android:background="@drawable/menu_color"
                     android:padding="3dp"
-                    android:src="@android:drawable/ic_menu_manage"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/tool_config"
                     android:visibility="visible" />
             </LinearLayout>
         </HorizontalScrollView>
@@ -140,17 +160,17 @@
 
     <ImageButton
         android:id="@+id/bt_toolIn"
-        android:layout_width="40dp"
+        android:layout_width="50dp"
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/linearLayout1"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
         android:adjustViewBounds="true"
-        android:background="#00000000"
+        android:background="@android:drawable/editbox_background_normal"
         android:paddingBottom="5dp"
         android:paddingTop="5dp"
         android:scaleType="fitXY"
-        android:src="@drawable/arrow_left" />
+        android:src="@drawable/tool_left" />
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -163,10 +183,12 @@
         android:orientation="vertical" >
 
         <RelativeLayout
+            android:id="@+id/space"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
-            android:layout_weight="1" >
-        </RelativeLayout>
+            android:layout_weight="1"
+            android:background="#00000000"
+            android:visibility="invisible" />
 
         <RelativeLayout
             android:id="@+id/draw_titlebar"
@@ -366,7 +388,7 @@
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:background="#FFFFFF" >
+            android:background="#EEEEEE" >
 
             <com.example.drawpen.PenView
                 android:id="@+id/penview"
@@ -376,8 +398,8 @@
 
             <RelativeLayout
                 android:id="@+id/relativeLayout1"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
+                android:layout_width="100sp"
+                android:layout_height="100sp"
                 android:layout_above="@+id/setbmp"
                 android:layout_alignParentRight="true" >
 
@@ -393,7 +415,8 @@
                 android:layout_height="wrap_content"
                 android:layout_above="@+id/relativeLayout1"
                 android:layout_alignParentRight="true"
-                android:text="Send"
+                android:text="@string/send_button"
+                android:textColor="#000000"
                 android:visibility="invisible" />
 
             <Button
@@ -402,7 +425,8 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentRight="true"
-                android:text="SET"
+                android:text="@string/set_button"
+                android:textColor="#000000"
                 android:visibility="invisible" />
         </RelativeLayout>
     </LinearLayout>
@@ -413,17 +437,18 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:background="@drawable/zoom_plate_small" >
+        android:background="@drawable/zoom_plate_small"
+        tools:ignore="ContentDescription,UselessParent,ObsoleteLayoutParam" >
 
         <ImageButton
             android:id="@+id/bt_canvasIn"
             android:layout_width="42dp"
             android:layout_height="wrap_content"
             android:layout_margin="3dp"
-            android:paddingTop="10dp"
-            android:paddingBottom="3dp"
             android:adjustViewBounds="true"
             android:background="#00000000"
+            android:paddingBottom="3dp"
+            android:paddingTop="10dp"
             android:scaleType="fitXY"
             android:src="@drawable/arrow_up" />
     </RelativeLayout>
@@ -433,13 +458,28 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/linearLayout1"
-        android:background="#AA000000"
-        android:visibility="gone" >
+        android:background="@android:drawable/editbox_background_normal"
+        android:visibility="invisible" >
 
         <NumberPicker
             android:id="@+id/waittime_picr"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/magnif_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/linearLayout1"
+        android:background="@android:drawable/editbox_background_normal"
+        android:visibility="invisible" >
+
+        <NumberPicker
+            android:id="@+id/magnif_picr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#000000" />
     </RelativeLayout>
 
 </RelativeLayout>

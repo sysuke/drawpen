@@ -20,7 +20,7 @@ public class RelativeInputView extends View  {
 		setMeasuredDimension(widthMeasureSpec, heightMeasureSpec);
 	}
 	
-	private float x=0,y=0;
+	private float x=75,y=75;
 	
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
@@ -41,8 +41,8 @@ public class RelativeInputView extends View  {
 		paint.setStrokeCap(Paint.Cap.ROUND);
 		paint.setStrokeJoin(Paint.Join.ROUND);
 
-		canvas.drawLine(100, 0, 100, 200, paint);
-		canvas.drawLine(0, 100, 200, 100, paint);
+		canvas.drawLine(75, 0, 75, 150, paint);
+		canvas.drawLine(0, 75, 150, 75, paint);
 
 		paint.setColor(Color.CYAN);
 
@@ -50,10 +50,10 @@ public class RelativeInputView extends View  {
 	}
 	
 	public float getPointX(){
-		return x-100;
+		return x-75;
 	}
 	public float getPointY(){
-		return y-100;
+		return y-75;
 	}
 	
 	public void setPenView(PenView penView) {
