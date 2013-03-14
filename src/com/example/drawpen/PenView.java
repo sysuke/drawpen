@@ -30,9 +30,9 @@ public class PenView extends View {
 	private boolean DEBUG_DRAW = false;
 
 	private DocumentView mDocView;
-	private SharedPreferences mSharedPreferences=null;
+	private SharedPreferences mSharedPreferences = null;
 	private PenActivity mPenActivity;
-	
+
 	// 補正済み線分リスト
 	private ArrayList<Path> bezier_list = new ArrayList<Path>();
 	// 線分リスト
@@ -60,7 +60,7 @@ public class PenView extends View {
 	private double mP0LastX = 0, mP0LastY = 0;
 	private double mP1LastX = 0, mP1LastY = 0;
 	private boolean mFastP = true;
-	
+
 	private int mWaitTime = 1000;
 	private int mMagnif = 1;
 
@@ -99,13 +99,9 @@ public class PenView extends View {
 		setMeasuredDimension(widthMeasureSpec, heightMeasureSpec);
 	}
 
-	
-	//線分の描画
+	// 線分の描画
 	public void onDraw(Canvas canvas) {
 		canvas.drawColor(mCanvasColor);
-		if (DEBUG)
-			Log.d(TAG, "onDraw");
-
 		// 描画部への描画
 		Bitmap bitmap = Bitmap.createBitmap(mMaxX + mPenWidth, mMaxY
 				+ mPenWidth, Bitmap.Config.ARGB_8888);
@@ -113,27 +109,27 @@ public class PenView extends View {
 		canvas2 = new Canvas(bitmap);
 		canvas2.drawColor(Color.argb(0, 0, 0, 0));
 
-		if (mSharedPreferences.getBoolean("ch_bezier", false)) {
+		if (mSharedPreferences != null) {
+			if (mSharedPreferences.getBoolean("ch_bezier", false)) {
+				if (bezier_list.size() != 0) {
+					for (int i = 0; i < bezier_list.size(); i++) {
+						Path pt = bezier_list.get(i);
+						Paint pen = pen_list.get(i);
+						canvas2.drawPath(pt, pen);
+					}
+				}
 
-			if (bezier_list.size() != 0) {
-				for (int i = 0; i < bezier_list.size(); i++) {
-					Path pt = bezier_list.get(i);
+				// 描画中線分の描画
+				if (mPathCor != null) {
+					mPaintCor.setColor(mPenColor);
+					canvas.drawPath(mPathCor, mPaintCor);
+				}
+			} else {
+				for (int i = 0; i < draw_list.size(); i++) {
+					Path pt = draw_list.get(i);
 					Paint pen = pen_list.get(i);
 					canvas2.drawPath(pt, pen);
 				}
-			}
-
-			// 描画中線分の描画
-			if (mPathCor != null) {
-				mPaintCor.setColor(mPenColor);
-				canvas.drawPath(mPathCor, mPaintCor);
-			}
-		} else {
-
-			for (int i = 0; i < draw_list.size(); i++) {
-				Path pt = draw_list.get(i);
-				Paint pen = pen_list.get(i);
-				canvas2.drawPath(pt, pen);
 			}
 		}
 
@@ -176,40 +172,96 @@ public class PenView extends View {
 		}
 	}
 
-	
-	//Pathの作成
-	
+	// Pathの作成
+
 	// タッチイベントによる描画
 	public boolean onTouchEvent(MotionEvent event) {
-		if(mSharedPreferences.getBoolean("ch_touch_event", false)){
-		absX = (int) event.getX();
-		absY = (int) event.getY();
-		// 線幅が画面幅を超えた場合の縮小倍率設定
-		double magX = 1, magY = 1;
-		if (mMaxX > this.getWidth()) {
-			magX = (double) this.getWidth() / (double) mMaxX;
-		}
-		if (mMaxY > this.getHeight()) {
-			magY = (double) this.getHeight() / (double) mMaxY;
-		}
-		if (magX > magY) {
-			mMag = magY;
-		} else {
-			mMag = magX;
-		}
-
-		switch (event.getAction()) {
-		case MotionEvent.ACTION_DOWN:
-
-			// 画像送信メッセージ削除
-			sendBitmapHandler.removeMessages(0);
-			if (mFastLine) {
-				mFastLine = false;
-				mMaxX = absX;
-				mMinX = absX;
-				mMaxY = this.getHeight();
-				mMinY = 0;
+		if (mSharedPreferences.getBoolean("ch_touch_event", false)) {
+			absX = (int) event.getX();
+			absY = (int) event.getY();
+			// 線幅が画面幅を超えた場合の縮小倍率設定
+			double magX = 1, magY = 1;
+			if (mMaxX > this.getWidth()) {
+				magX = (double) this.getWidth() / (double) mMaxX;
+			}
+			if (mMaxY > this.getHeight()) {
+				magY = (double) this.getHeight() / (double) mMaxY;
+			}
+			if (magX > magY) {
+				mMag = magY;
 			} else {
+				mMag = magX;
+			}
+
+			switch (event.getAction()) {
+			case MotionEvent.ACTION_DOWN:
+
+				// 画像送信メッセージ削除
+				sendBitmapHandler.removeMessages(0);
+				if (mFastLine) {
+					mFastLine = false;
+					mMaxX = absX;
+					mMinX = absX;
+					mMaxY = this.getHeight();
+					mMinY = 0;
+				} else {
+					if (absX > mMaxX) {
+						mMaxX = absX;
+					}
+					if (absX < mMinX) {
+						mMinX = absX;
+					}
+					if (absY > mMaxY) {
+						mMaxY = absY;
+					}
+					if (absY < mMinY) {
+						mMinY = absY;
+					}
+					modCoordinate();
+				}
+
+				isPush = true;
+				// pathとpaintの初期化
+				point_list.clear();
+				cp_list.clear();
+
+				mPathCor = new Path();
+				mPathBefor = new Path();
+
+				mPaintCor = new Paint();
+				mPaintCor.setColor(mPenColor);
+				mPaintCor.setAntiAlias(true);
+				mPaintCor.setStyle(Paint.Style.STROKE);
+				mPaintCor.setStrokeWidth(mPenWidth);
+				mPaintCor.setStrokeCap(Paint.Cap.ROUND);
+				mPaintCor.setStrokeJoin(Paint.Join.ROUND);
+
+				mPaintBefor = mPaintCor;
+
+				// 始点入力
+				mPathCor.moveTo(absX, absY);
+				mPathBefor.moveTo(absX, absY);
+				point_list.add(absX);
+				point_list.add(absY);
+
+				// connect.
+				mBaseX = absX;
+				mBaseY = absY;
+				mMiddleX = absX;
+				mMiddleX = absY;
+
+				mLoMaxX = 0;
+				mLoMaxY = 0;
+
+				lastX = absX;
+				lastY = absY;
+
+				break;
+			case MotionEvent.ACTION_MOVE:
+				// 補正前曲線座標入力
+				mLineCount++;
+				// 画像送信メッセージ削除
+				sendBitmapHandler.removeMessages(0);
 				if (absX > mMaxX) {
 					mMaxX = absX;
 				}
@@ -223,89 +275,31 @@ public class PenView extends View {
 					mMinY = absY;
 				}
 				modCoordinate();
-			}
 
-			isPush = true;
-			// pathとpaintの初期化
-			point_list.clear();
-			cp_list.clear();
+				// 極大算出
+				int saX = Math.abs(mBaseX - absX);
+				int saY = Math.abs(mBaseY - absY);
+				if (saX > mLoMaxX) {
+					mLoMaxX = saX;
+				}
+				if (saY > mLoMaxY) {
+					mLoMaxY = saY;
+				}
+				int vecX = Math.abs(mMiddleX - absX);
+				int vecY = Math.abs(mMiddleY - absY);
 
-			mPathCor = new Path();
-			mPathBefor = new Path();
+				double vec = Math.sqrt((double) (vecX * vecX + vecY * vecY));
+				if (vec > 20) {
+					mMiddleX = absX;
+					mMiddleX = absY;
 
-			mPaintCor = new Paint();
-			mPaintCor.setColor(mPenColor);
-			mPaintCor.setAntiAlias(true);
-			mPaintCor.setStyle(Paint.Style.STROKE);
-			mPaintCor.setStrokeWidth(mPenWidth);
-			mPaintCor.setStrokeCap(Paint.Cap.ROUND);
-			mPaintCor.setStrokeJoin(Paint.Join.ROUND);
+					// 補正前曲線座標入力
+					mPathBefor.lineTo(absX, absY);
 
-			mPaintBefor = mPaintCor;
+					point_list.add((int) absX);
+					point_list.add((int) absY);
 
-			// 始点入力
-			mPathCor.moveTo(absX, absY);
-			mPathBefor.moveTo(absX, absY);
-			point_list.add(absX);
-			point_list.add(absY);
-
-			// connect.
-			mBaseX = absX;
-			mBaseY = absY;
-			mMiddleX=absX;
-			mMiddleX=absY;
-
-			mLoMaxX = 0;
-			mLoMaxY = 0;
-
-			lastX = absX;
-			lastY = absY;
-
-			break;
-		case MotionEvent.ACTION_MOVE:
-			// 補正前曲線座標入力
-			mLineCount++;
-			// 画像送信メッセージ削除
-			sendBitmapHandler.removeMessages(0);
-			if (absX > mMaxX) {
-				mMaxX = absX;
-			}
-			if (absX < mMinX) {
-				mMinX = absX;
-			}
-			if (absY > mMaxY) {
-				mMaxY = absY;
-			}
-			if (absY < mMinY) {
-				mMinY = absY;
-			}
-			modCoordinate();
-
-
-			//極大算出
-			int saX = Math.abs(mBaseX - absX);
-			int saY = Math.abs(mBaseY - absY);
-			if (saX > mLoMaxX) {
-				mLoMaxX = saX;
-			}
-			if (saY > mLoMaxY) {
-				mLoMaxY = saY;
-			}
-			int vecX = Math.abs(mMiddleX - absX);
-			int vecY = Math.abs(mMiddleY - absY);
-			
-			double vec=Math.sqrt((double)(vecX*vecX+vecY*vecY));
-			if(vec>20){
-				mMiddleX=absX;
-				mMiddleX=absY;
-				
-				// 補正前曲線座標入力
-				mPathBefor.lineTo(absX, absY);
-				
-				point_list.add((int) absX);
-				point_list.add((int) absY);
-
-				// 極大で曲線切断
+					// 極大で曲線切断
 					if (saX < mLoMaxX || saY < mLoMaxY) {
 						if (mLineCount > 2) {
 							mLineCount = 0;
@@ -361,90 +355,92 @@ public class PenView extends View {
 				lastX = absX;
 				lastY = absY;
 
-			invalidate();
-			break;
-		case MotionEvent.ACTION_UP:
-			// 終点入力
-			// 画像送信メッセージ削除
-			sendBitmapHandler.removeMessages(0);
-			if (absX > mMaxX) {
-				mMaxX = absX;
-			}
-			if (absX < mMinX) {
-				mMinX = absX;
-			}
-			if (absY > mMaxY) {
-				mMaxY = absY;
-			}
-			if (absY < mMinY) {
-				mMinY = absY;
-			}
-			modCoordinate();
-
-			if (DEBUG)
-				Log.d(TAG, "ACTION_UP " + "absX" + absX + " absY" + absY);
-			lastX = absX;
-			lastY = absY;
-
-			// 終点入力
-			mPathBefor.lineTo(absX, absY);
-			invalidate();
-
-			point_list.add((int) absX);
-			point_list.add((int) absY);
-
-			if (mLineCount > 1) {
-				// 変異点算出
-				Ri = BezierCP.calControPoint(point_list, 20);
-				if (DEBUG)
-					Log.d(TAG, "Last R0[" + Ri[0][0] + "," + Ri[0][1] + "] R1["
-							+ Ri[0][0] + "," + Ri[0][0] + "] Count:"
-							+ mLineCount);
-
-				if(!mFastP){
-					double a = mP0LastY - mP1LastY;
-					double b = mP1LastX - mP0LastX;
-					double c = mP0LastX * mP1LastY - mP1LastX * mP0LastY;
-					
-					Ri[0][0]-=(a*Ri[0][0]+b*Ri[0][1]+c)/(a*a+b*b)*a;
-					Ri[0][1]-=(a*Ri[0][0]+b*Ri[0][1]+c)/(a*a+b*b)*b;
+				invalidate();
+				break;
+			case MotionEvent.ACTION_UP:
+				// 終点入力
+				// 画像送信メッセージ削除
+				sendBitmapHandler.removeMessages(0);
+				if (absX > mMaxX) {
+					mMaxX = absX;
 				}
-				
-				cp_list.add((int) Ri[0][0]);
-				cp_list.add((int) Ri[0][1]);
-				cp_list.add((int) Ri[1][0]);
-				cp_list.add((int) Ri[1][1]);
-				cp_list.add(absX);
-				cp_list.add(absY);
-				mPathCor.cubicTo((float) Ri[0][0], (float) Ri[0][1],
-						(float) Ri[1][0], (float) Ri[1][1], (float) absX,
-						(float) absY);
+				if (absX < mMinX) {
+					mMinX = absX;
+				}
+				if (absY > mMaxY) {
+					mMaxY = absY;
+				}
+				if (absY < mMinY) {
+					mMinY = absY;
+				}
+				modCoordinate();
 
-			} else {
-				mPathCor.lineTo(absX, absY);
-			}
-			bezier_list.add(mPathCor);
-			draw_list.add(mPathBefor);
-			pen_list.add(mPaintCor);
-			mPathBefor = null;
+				if (DEBUG)
+					Log.d(TAG, "ACTION_UP " + "absX" + absX + " absY" + absY);
+				lastX = absX;
+				lastY = absY;
 
-			// 画像送信メッセージ発行
-			if(!(mSharedPreferences.getBoolean("ch_send_button", false))){
-				sendBitmapHandler.postDelayed(sendBitmapTask, mWaitTime);
+				// 終点入力
+				mPathBefor.lineTo(absX, absY);
+				invalidate();
+
+				point_list.add((int) absX);
+				point_list.add((int) absY);
+
+				if (mLineCount > 1) {
+					// 変異点算出
+					Ri = BezierCP.calControPoint(point_list, 20);
+					if (DEBUG)
+						Log.d(TAG, "Last R0[" + Ri[0][0] + "," + Ri[0][1]
+								+ "] R1[" + Ri[0][0] + "," + Ri[0][0]
+								+ "] Count:" + mLineCount);
+
+					if (!mFastP) {
+						double a = mP0LastY - mP1LastY;
+						double b = mP1LastX - mP0LastX;
+						double c = mP0LastX * mP1LastY - mP1LastX * mP0LastY;
+
+						Ri[0][0] -= (a * Ri[0][0] + b * Ri[0][1] + c)
+								/ (a * a + b * b) * a;
+						Ri[0][1] -= (a * Ri[0][0] + b * Ri[0][1] + c)
+								/ (a * a + b * b) * b;
+					}
+
+					cp_list.add((int) Ri[0][0]);
+					cp_list.add((int) Ri[0][1]);
+					cp_list.add((int) Ri[1][0]);
+					cp_list.add((int) Ri[1][1]);
+					cp_list.add(absX);
+					cp_list.add(absY);
+					mPathCor.cubicTo((float) Ri[0][0], (float) Ri[0][1],
+							(float) Ri[1][0], (float) Ri[1][1], (float) absX,
+							(float) absY);
+
+				} else {
+					mPathCor.lineTo(absX, absY);
+				}
+				bezier_list.add(mPathCor);
+				draw_list.add(mPathBefor);
+				pen_list.add(mPaintCor);
+				mPathBefor = null;
+
+				// 画像送信メッセージ発行
+				if (!(mSharedPreferences.getBoolean("ch_send_button", false))) {
+					sendBitmapHandler.postDelayed(sendBitmapTask, mWaitTime);
+				}
+				invalidate();
+				mFastP = true;
+
+				isPush = false;
+
+				break;
+			default:
+				if (DEBUG)
+					Log.d(TAG, "ERROR: onTouchEvent default");
+
+				break;
 			}
 			invalidate();
-			mFastP=true;
-
-			isPush = false;
-
-			break;
-		default:
-			if (DEBUG)
-				Log.d(TAG, "ERROR: onTouchEvent default");
-
-			break;
-		}
-		invalidate();
 		}
 
 		return true;
@@ -506,15 +502,12 @@ public class PenView extends View {
 			mMinY = 0;
 			absY = 0;
 		}
+		//描画線の位置修正
 		if (diffX != 0 || diffY != 0) {
 			if (mPathBefor != null) {
-				if (DEBUG)
-					Log.i(TAG, "mPathBefor = null");
 				mPathBefor.offset(diffX, diffY);
 			}
 			if (mPathCor != null) {
-				if (DEBUG)
-					Log.i(TAG, "mPathCor = null");
 				mPathCor.offset(diffX, diffY);
 			}
 			for (int i = 0; i < point_list.size(); i++) {
@@ -544,8 +537,8 @@ public class PenView extends View {
 	// 相対座標入力による描画
 	public boolean setMovePoint(boolean push, int x, int y) {
 		Log.d(TAG, "X" + x + " Y" + y + " push" + push);
-		x*=mMagnif;
-		y*=mMagnif;
+		x *= mMagnif;
+		y *= mMagnif;
 
 		// 線幅が画面幅を超えた場合の縮小倍率設定
 		double magX = 1, magY = 1;
@@ -562,19 +555,19 @@ public class PenView extends View {
 		}
 
 		if (!isPush) {
-			
+
 			// MotionEvent.ACTION_DOWN:
 			// 押されていない状態から押された状態へ
-			
+
 			if (push) {
 				if (DEBUG)
 					Log.d(TAG, "ACTION_DOWN" + "absX" + absX + " absY" + absY);
 				if (!(mSharedPreferences.getBoolean("ch_draw_button", false))) {
-					if(!(mPenActivity.isIn_up)){
+					if (!(mPenActivity.isIn_up)) {
 						mPenActivity.slideIn(mPenActivity.UP_DOWN);
 					}
 				}
-				
+
 				// 画像送信メッセージ削除
 				sendBitmapHandler.removeMessages(0);
 				if (mFastLine) {
@@ -612,9 +605,9 @@ public class PenView extends View {
 				// connect.
 				mBaseX = absX;
 				mBaseY = absY;
-				mMiddleX=absX;
-				mMiddleX=absY;
-				
+				mMiddleX = absX;
+				mMiddleX = absY;
+
 				mLoMaxX = 0;
 				mLoMaxY = 0;
 
@@ -633,8 +626,9 @@ public class PenView extends View {
 			// MotionEvent.ACTION_MOVE:
 			if (push) {
 				// 画像送信メッセージ削除
-				if (!(mSharedPreferences.getBoolean("ch_send_drawbutton", false))) {
-					if(!(mPenActivity.isIn_up)){
+				if (!(mSharedPreferences
+						.getBoolean("ch_send_drawbutton", false))) {
+					if (!(mPenActivity.isIn_up)) {
 						mPenActivity.slideIn(mPenActivity.UP_DOWN);
 					}
 				}
@@ -645,7 +639,7 @@ public class PenView extends View {
 				if (DEBUG)
 					Log.d(TAG, "ACTION_MOVE " + "absX" + absX + " absY" + absY);
 
-				//極大算出
+				// 極大算出
 				int saX = Math.abs(mBaseX - absX);
 				int saY = Math.abs(mBaseY - absY);
 				if (saX > mLoMaxX) {
@@ -656,81 +650,82 @@ public class PenView extends View {
 				}
 				int vecX = Math.abs(mMiddleX - absX);
 				int vecY = Math.abs(mMiddleY - absY);
-				
-				double vec=Math.sqrt((double)(vecX*vecX+vecY*vecY));
-				if(vec>20){
-					mMiddleX=absX;
-					mMiddleX=absY;
-					
+
+				double vec = Math.sqrt((double) (vecX * vecX + vecY * vecY));
+				if (vec > 20) {
+					mMiddleX = absX;
+					mMiddleX = absY;
+
 					// 補正前曲線座標入力
 					mPathBefor.lineTo(absX, absY);
-					
+
 					point_list.add((int) absX);
 					point_list.add((int) absY);
 
 					// 極大で曲線切断
-						if (saX < mLoMaxX || saY < mLoMaxY) {
-							if (mLineCount > 2) {
-								mLineCount = 0;
-								if (DEBUG)
-									Log.d(TAG, "absX:" + absX + " absY" + absY);
-								// 変異点算出
-								Ri = BezierCP.calControPoint(point_list, 20);
+					if (saX < mLoMaxX || saY < mLoMaxY) {
+						if (mLineCount > 2) {
+							mLineCount = 0;
+							if (DEBUG)
+								Log.d(TAG, "absX:" + absX + " absY" + absY);
+							// 変異点算出
+							Ri = BezierCP.calControPoint(point_list, 20);
 
-								cp_list.add((int) Ri[0][0]);
-								cp_list.add((int) Ri[0][1]);
-								cp_list.add((int) Ri[1][0]);
-								cp_list.add((int) Ri[1][1]);
-								cp_list.add(absX);
-								cp_list.add(absY);
+							cp_list.add((int) Ri[0][0]);
+							cp_list.add((int) Ri[0][1]);
+							cp_list.add((int) Ri[1][0]);
+							cp_list.add((int) Ri[1][1]);
+							cp_list.add(absX);
+							cp_list.add(absY);
 
-								if (DEBUG)
-									Log.d(TAG, "R0[" + Ri[0][0] + "," + Ri[0][1]
-											+ "] R1[" + Ri[1][0] + "," + Ri[1][1]
-											+ "]");
+							if (DEBUG)
+								Log.d(TAG, "R0[" + Ri[0][0] + "," + Ri[0][1]
+										+ "] R1[" + Ri[1][0] + "," + Ri[1][1]
+										+ "]");
 
-								// ベジェ曲線接続時の変異点修正
-								if (mFastP) {
-									mFastP = false;
-								} else {
-									double a = mP0LastY - mP1LastY;
-									double b = mP1LastX - mP0LastX;
-									double c = mP0LastX * mP1LastY - mP1LastX
-											* mP0LastY;
+							// ベジェ曲線接続時の変異点修正
+							if (mFastP) {
+								mFastP = false;
+							} else {
+								double a = mP0LastY - mP1LastY;
+								double b = mP1LastX - mP0LastX;
+								double c = mP0LastX * mP1LastY - mP1LastX
+										* mP0LastY;
 
-									Ri[0][0] -= (a * Ri[0][0] + b * Ri[0][1] + c)
-											/ (a * a + b * b) * a;
-									Ri[0][1] -= (a * Ri[0][0] + b * Ri[0][1] + c)
-											/ (a * a + b * b) * b;
-								}
-								mP0LastX = Ri[1][0];
-								mP0LastY = Ri[1][1];
-								mP1LastX = (double) absX;
-								mP1LastY = (double) absY;
-
-								mPathCor.cubicTo((float) Ri[0][0],
-										(float) Ri[0][1], (float) Ri[1][0],
-										(float) Ri[1][1], (float) absX,
-										(float) absY);
-
-								// pathとpaintの初期化
-								point_list.clear();
-								// 始点入力
-								point_list.add(absX);
-								point_list.add(absY);
+								Ri[0][0] -= (a * Ri[0][0] + b * Ri[0][1] + c)
+										/ (a * a + b * b) * a;
+								Ri[0][1] -= (a * Ri[0][0] + b * Ri[0][1] + c)
+										/ (a * a + b * b) * b;
 							}
+							mP0LastX = Ri[1][0];
+							mP0LastY = Ri[1][1];
+							mP1LastX = (double) absX;
+							mP1LastY = (double) absY;
+
+							mPathCor.cubicTo((float) Ri[0][0],
+									(float) Ri[0][1], (float) Ri[1][0],
+									(float) Ri[1][1], (float) absX,
+									(float) absY);
+
+							// pathとpaintの初期化
+							point_list.clear();
+							// 始点入力
+							point_list.add(absX);
+							point_list.add(absY);
 						}
 					}
-					lastX = absX;
-					lastY = absY;
+				}
+				lastX = absX;
+				lastY = absY;
 
 				invalidate();
 				// 押された状態から押されていない状態へ
 				// MotionEvent.ACTION_UP:
 			} else {
 				// 画像送信メッセージ削除
-				if (!(mSharedPreferences.getBoolean("ch_send_drawbutton", false))) {
-					if(!(mPenActivity.isIn_up)){
+				if (!(mSharedPreferences
+						.getBoolean("ch_send_drawbutton", false))) {
+					if (!(mPenActivity.isIn_up)) {
 						mPenActivity.slideIn(mPenActivity.UP_DOWN);
 					}
 				}
@@ -754,19 +749,21 @@ public class PenView extends View {
 					// 変異点算出
 					Ri = BezierCP.calControPoint(point_list, 20);
 					if (DEBUG)
-						Log.d(TAG, "Last R0[" + Ri[0][0] + "," + Ri[0][1] + "] R1["
-								+ Ri[0][0] + "," + Ri[0][0] + "] Count:"
-								+ mLineCount);
+						Log.d(TAG, "Last R0[" + Ri[0][0] + "," + Ri[0][1]
+								+ "] R1[" + Ri[0][0] + "," + Ri[0][0]
+								+ "] Count:" + mLineCount);
 
-					if(!mFastP){
+					if (!mFastP) {
 						double a = mP0LastY - mP1LastY;
 						double b = mP1LastX - mP0LastX;
 						double c = mP0LastX * mP1LastY - mP1LastX * mP0LastY;
-						
-						Ri[0][0]-=(a*Ri[0][0]+b*Ri[0][1]+c)/(a*a+b*b)*a;
-						Ri[0][1]-=(a*Ri[0][0]+b*Ri[0][1]+c)/(a*a+b*b)*b;
+
+						Ri[0][0] -= (a * Ri[0][0] + b * Ri[0][1] + c)
+								/ (a * a + b * b) * a;
+						Ri[0][1] -= (a * Ri[0][0] + b * Ri[0][1] + c)
+								/ (a * a + b * b) * b;
 					}
-					
+
 					cp_list.add((int) Ri[0][0]);
 					cp_list.add((int) Ri[0][1]);
 					cp_list.add((int) Ri[1][0]);
@@ -786,11 +783,11 @@ public class PenView extends View {
 				mPathBefor = null;
 
 				// 画像送信メッセージ発行
-				if(!(mSharedPreferences.getBoolean("ch_send_button", false))){
+				if (!(mSharedPreferences.getBoolean("ch_send_button", false))) {
 					sendBitmapHandler.postDelayed(sendBitmapTask, mWaitTime);
 				}
 				invalidate();
-				mFastP=true;
+				mFastP = true;
 				isPush = false;
 			}
 		}
@@ -801,7 +798,7 @@ public class PenView extends View {
 	public void reissueMessage() {
 		sendBitmapHandler.removeMessages(0);
 		if (draw_list.size() > 0) {
-			if(!(mSharedPreferences.getBoolean("ch_send_buttom", false))){
+			if (!(mSharedPreferences.getBoolean("ch_send_buttom", false))) {
 
 				sendBitmapHandler.postDelayed(sendBitmapTask, mWaitTime);
 			}
@@ -811,8 +808,8 @@ public class PenView extends View {
 	// pathをbmp変換しプレビュー部へ送信
 	public void sendBitmap() {
 		if (!(mSharedPreferences.getBoolean("ch_draw_button", false))) {
-			if(mPenActivity.isIn_up){
-						mPenActivity.slideOut(mPenActivity.UP_DOWN);
+			if (mPenActivity.isIn_up) {
+				mPenActivity.slideOut(mPenActivity.UP_DOWN);
 			}
 		}
 		mFastLine = true;
@@ -900,7 +897,8 @@ public class PenView extends View {
 		reissueMessage();
 		return true;
 	}
-	// 画像送信までの時間設定
+
+	// 移動量の倍率設定
 	public boolean setMagnification(int mag) {
 		mMagnif = mag;
 		reissueMessage();
@@ -912,7 +910,7 @@ public class PenView extends View {
 		int bsize = bezier_list.size() - 1;
 		int size = draw_list.size() - 1;
 		if (DEBUG)
-Log.d(TAG, "undo bsize:" + bsize + " size:" + size);
+			Log.d(TAG, "undo bsize:" + bsize + " size:" + size);
 
 		reissueMessage();
 		isPush = false;
@@ -948,12 +946,12 @@ Log.d(TAG, "undo bsize:" + bsize + " size:" + size);
 	public void setDocumentView(DocumentView docView) {
 		mDocView = docView;
 	}
-	
+
 	// Preference取得
 	public void setSharedPreference(SharedPreferences sharedPreferences) {
 		mSharedPreferences = sharedPreferences;
 	}
-	
+
 	// 親Activity取得
 	public void setParentActivity(PenActivity penActivity) {
 		mPenActivity = penActivity;

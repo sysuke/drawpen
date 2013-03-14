@@ -16,7 +16,7 @@
         <activity
             android:name="com.example.drawpen.PenActivity"
             android:label="@string/app_name" 
-            android:theme="@android:style/Theme.Holo.NoActionBar">
+            android:theme="@android:style/Theme.Holo.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

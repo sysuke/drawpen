@@ -1,3 +1,9 @@
+/* ##########################################
+//
+//  相対座標入力View
+//
+// ##########################################*/
+
 package com.example.drawpen;	
 
 import android.content.Context;
@@ -9,8 +15,6 @@ import android.view.MotionEvent;
 import android.view.View;
 
 public class RelativeInputView extends View  {
-	private PenView mPenView;
-	
 	public RelativeInputView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 	}
@@ -54,9 +58,5 @@ public class RelativeInputView extends View  {
 	}
 	public float getPointY(){
 		return y-75;
-	}
-	
-	public void setPenView(PenView penView) {
-		mPenView = penView;
 	}
 }

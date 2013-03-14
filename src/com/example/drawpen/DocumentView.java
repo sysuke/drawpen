@@ -32,7 +32,7 @@ public class DocumentView extends View {
 	}
 
 	protected void onDraw(Canvas canvas) {
-
+		//背景色
 		canvas.drawColor(Color.rgb(255, 240, 175));
 
 		int lastX = 0;
@@ -75,9 +75,6 @@ public class DocumentView extends View {
 						paint);
 			}
 		}
-
-		
-
 	}
 
 	// 全消し
@@ -96,8 +93,6 @@ public class DocumentView extends View {
 				break;
 			bmp_list.remove(size - i);
 		}
-		
-
 		size = xy_list.size() - 1;
 		for (int i = 0; i < x * 2; i++) {
 			if (size - i < 0)

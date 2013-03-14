@@ -6,19 +6,13 @@
 
 package com.example.drawpen;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.text.Editable;
-import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -34,12 +28,10 @@ import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.NumberPicker.OnValueChangeListener;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.ToggleButton;
 
 public class PenActivity extends Activity implements OnClickListener,
 		AnimationListener, OnValueChangeListener {
-	private static final String TAG = "PenActivity";
 	boolean DEBUG = false;
 
 	boolean waitt_toggle = true;
@@ -80,9 +72,6 @@ public class PenActivity extends Activity implements OnClickListener,
 	private ToggleButton tbn_push;
 	private EditText et_x, et_y;
 
-	/*
-	 * private ImageButton imgb_redo;
-	 */
 	private Button bt_backspace;
 	private ImageButton bt_allc;
 	private ImageButton bt_pref;
@@ -113,14 +102,6 @@ public class PenActivity extends Activity implements OnClickListener,
 
 	private SharedPreferences mSharedPreferences;
 
-	//
-	// WifiReceive wifiRecv;
-	// WifiEventHandler wifiHandle;
-	// Handler ui_handler = new Handler(); //UIスレッドハンドラ
-	// ReceiveData wifiData;
-	//
-	// DataConvert conv;
-
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -137,17 +118,6 @@ public class PenActivity extends Activity implements OnClickListener,
 		penView = (PenView) findViewById(R.id.penview);
 		docview = (DocumentView) findViewById(R.id.documentview);
 
-		// 画面サイズを取得しプレビューに入力
-		WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
-		Display disp = wm.getDefaultDisplay();
-		int width = disp.getWidth();
-		int height = disp.getHeight();
-		docview.setWindowSize(width, height);
-		penView.setDocumentView(docview);
-		penView.setSharedPreference(mSharedPreferences);
-		penView.setParentActivity(this);
-
-		// テスト用
 		inputview = (RelativeInputView) findViewById(R.id.inputview);
 		bt_move = (Button) findViewById(R.id.move_btn);
 		bt_move.setOnClickListener(this);
@@ -233,52 +203,26 @@ public class PenActivity extends Activity implements OnClickListener,
 		imgb_pensizenormal = (ImageButton) findViewById(R.id.pensizenormal_btn);
 		imgb_pensizenormal.setOnClickListener(this);
 
-		/*
-		 * imgb_redo = (ImageButton) findViewById(R.id.redo_btn);
-		 * imgb_redo.setOnClickListener(this);
-		 */
 		imgb_undo = (ImageButton) findViewById(R.id.undo_btn);
 		imgb_undo.setOnClickListener(this);
+		// 画面サイズを取得しプレビューに入力
+		WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+		Display disp = wm.getDefaultDisplay();
+		int width = disp.getWidth();
+		int height = disp.getHeight();
+		docview.setWindowSize(width, height);
 
-		// // データ変換関数群
-		// conv = new DataConvert(new DataConvertEventHandler(){
-		// });
-		//
-		// // Wifi通信処理
-		// wifiRecv = new WifiReceive(new WifiEventHandler(){
-		// @Override
-		// public void receiveData(int x, int y, int z, boolean push)
-		// {
-		// Log.d("wifiDebug","Recv : "+x+","+y+","+z+","+Boolean.toString(push));
-		// wifiData = conv.DataConvert_DrawDataConvert(new ReceiveData(x, y, z,
-		// push));
-		// Log.d("wifiDebug","Recv : "+wifiData.x+","+wifiData.y+","+wifiData.z+","+Boolean.toString(wifiData.push));
-		// Timer time = new Timer();
-		// time.schedule(new WifiToDrawTask(), 1);
-		// }
-		// });
-		// wifiRecv.setPort(32346);
-		// wifiRecv.openConnect();
+		// 必要なViewをPenViewへ
+		penView.setDocumentView(docview);
+		penView.setSharedPreference(mSharedPreferences);
+		penView.setParentActivity(this);
 	}
-
-	// public class WifiToDrawTask extends TimerTask {
-	// @Override
-	// public void run() {
-	// // TODO 自動生成されたメソッド・スタブ
-	// ui_handler.post(new Runnable() {
-	// public void run() {
-	// penView.setMovePoint(wifiData.push, wifiData.x, wifiData.y);
-	// }
-	// });
-	// }
-	//
-	// }
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-		Log.e(TAG, "isIn_up:" + isIn_up);
 
+		// 設定画面の値によってUIを変更
 		if (mSharedPreferences.getBoolean("ch_input", false)) {
 			inputview.setVisibility(RelativeInputView.VISIBLE);
 			bt_move.setVisibility(RelativeInputView.VISIBLE);
@@ -321,8 +265,9 @@ public class PenActivity extends Activity implements OnClickListener,
 	@Override
 	public void onClick(View view) {
 		switch (view.getId()) {
-		case R.id.move_btn:
 
+		// 相対座標入力
+		case R.id.move_btn:
 			int x = 0,
 			y = 0;
 			if (!et_x.getText().toString().equals("")) {
@@ -335,7 +280,6 @@ public class PenActivity extends Activity implements OnClickListener,
 			} else {
 				et_y.setText("0");
 			}
-
 			penView.setMovePoint(tbn_push.isChecked(), x, y);
 			break;
 		case R.id.setbmp:
@@ -345,9 +289,9 @@ public class PenActivity extends Activity implements OnClickListener,
 			y2 = (int) inputview.getPointY();
 			et_x.setText("" + x2);
 			et_y.setText("" + y2);
-
 			break;
 
+		// プレビュー画面ツールバー
 		case R.id.allc_btn:
 			docview.allClear();
 			break;
@@ -357,19 +301,20 @@ public class PenActivity extends Activity implements OnClickListener,
 			startActivity(intent);
 			break;
 		case R.id.timeconf_btn:
-			// 時間設定ボタン押下
-
 			// 時間設定ボタンの座標を取得し真下に配置
 			int[] anchorPos = new int[2];
 			view.getLocationOnScreen(anchorPos);
 
 			if (waitt_toggle) {
+				mag_toggle = true;
+				magnifview.setVisibility(RelativeLayout.INVISIBLE);
 				waitt_toggle = false;
 
 				int[] location = new int[2];
 				imgb_timeconf.getLocationInWindow(location);
 				waittimeview.setTranslationX(location[0]
-						- (waittimeview.getWidth() -imgb_timeconf.getWidth())/2 -5);
+						- (waittimeview.getWidth() - imgb_timeconf.getWidth())
+						/ 2 - 5);
 
 				waittimeview.setVisibility(RelativeLayout.VISIBLE);
 			} else {
@@ -378,16 +323,19 @@ public class PenActivity extends Activity implements OnClickListener,
 			}
 			break;
 		case R.id.magnif_btn:
-			int[] anchorPos_mag= new int[2];
+			int[] anchorPos_mag = new int[2];
 			view.getLocationOnScreen(anchorPos_mag);
 
 			if (mag_toggle) {
+				waitt_toggle = true;
+				waittimeview.setVisibility(RelativeLayout.INVISIBLE);
+
 				mag_toggle = false;
 
 				int[] location = new int[2];
 				imgb_magnif.getLocationInWindow(location);
 				magnifview.setTranslationX(location[0]
-						- (magnifview.getWidth() -imgb_magnif.getWidth())/2 -5);
+						- (magnifview.getWidth() - imgb_magnif.getWidth()) / 2);
 
 				magnifview.setVisibility(RelativeLayout.VISIBLE);
 			} else {
@@ -395,6 +343,8 @@ public class PenActivity extends Activity implements OnClickListener,
 				magnifview.setVisibility(RelativeLayout.INVISIBLE);
 			}
 			break;
+
+		// 描画部ツールバー
 		case R.id.erase_btn:
 			penView.pathClear();
 			break;
@@ -473,7 +423,6 @@ public class PenActivity extends Activity implements OnClickListener,
 		case R.id.pensizefine_btn:
 			penView.setPenWidth(5);
 			imgb_setpensize.setImageResource(R.drawable.menu_pensize_fine);
-
 			break;
 		case R.id.pensizebold_btn:
 			penView.setPenWidth(30);
@@ -487,14 +436,12 @@ public class PenActivity extends Activity implements OnClickListener,
 		case R.id.undo_btn:
 			penView.undo(1);
 			break;
-		/*
-		 * //やり直しボタン(未実装) case R.id.redo_btn: penView.redo(1); break;
-		 */
 
 		// 画像送信ボタン(debug時のみ表示)
 		case R.id.sendbmp:
 			penView.sendBitmap();
 			break;
+
 		// ツールバー表示/非表示切り替え
 		case R.id.bt_toolOut:
 			if (!waitt_toggle) {
@@ -528,7 +475,6 @@ public class PenActivity extends Activity implements OnClickListener,
 				isIn = true;
 				bt_toolIn.setVisibility(Button.INVISIBLE);
 				bt_toolOut.setVisibility(Button.VISIBLE);
-				Log.e(TAG,"vis 2");
 
 				toolbarView.setVisibility(LinearLayout.INVISIBLE);
 				toolbarView.setPadding(0, 0, 0, 0);
@@ -549,7 +495,6 @@ public class PenActivity extends Activity implements OnClickListener,
 
 				toolbarView.startAnimation(trans);
 				bt_toolOut.startAnimation(trans2);
-				Log.e(TAG,"visanim in");
 
 			}
 			break;
@@ -615,7 +560,6 @@ public class PenActivity extends Activity implements OnClickListener,
 
 				toolbarView.startAnimation(trans);
 				bt_toolOut.startAnimation(trans2);
-				Log.e(TAG,"visanim out");
 
 			}
 			break;
@@ -658,12 +602,9 @@ public class PenActivity extends Activity implements OnClickListener,
 					R.drawable.tool_right));
 
 			bt_toolOut.setVisibility(Button.VISIBLE);
-			Log.e(TAG,"vis 1");
-
-		} else {	
-			Log.e(TAG,"invis 2");
+		} else {
 			bt_toolOut.setVisibility(Button.INVISIBLE);
-		
+
 			bt_toolIn.setVisibility(Button.VISIBLE);
 			bt_toolOut.setImageDrawable(getResources().getDrawable(
 					R.drawable.tool_left));
@@ -709,7 +650,6 @@ public class PenActivity extends Activity implements OnClickListener,
 	@Override
 	public void onAnimationRepeat(Animation animation) {
 		return;
-
 	}
 
 	// アニメーション開始時の処理
@@ -718,13 +658,15 @@ public class PenActivity extends Activity implements OnClickListener,
 		return;
 	}
 
-	// 画像送信時間変更用NumberPickerの値取得
+	// NumberPickerの値取得
 	@Override
 	public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
 		switch (picker.getId()) {
+		// 画像送信時間変更用
 		case R.id.waittime_picr:
 			penView.setWaitTime(newVal * 1000);
 			break;
+		// 線の長さの倍率変更用
 		case R.id.magnif_picr:
 			penView.setMagnification(newVal);
 			break;

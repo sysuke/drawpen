@@ -1,3 +1,9 @@
+/* ##########################################
+//
+//  設定画面
+//
+// ##########################################*/
+
 package com.example.drawpen;
 
 import android.os.Bundle;
@@ -15,6 +21,7 @@ public class PenPrefActivity extends PreferenceActivity implements OnPreferenceC
 
 	}
 
+	//戻るボタン
 	@Override
 	public boolean onPreferenceClick(Preference preference) {
 		finish();

@@ -72,13 +72,12 @@ public final class R {
         public static final int edit_x=0x7f080007;
         public static final int edit_y=0x7f080008;
         public static final int erase_btn=0x7f080021;
-        public static final int f_menu=0x7f080032;
         public static final int inputview=0x7f08002a;
         public static final int linearLayout1=0x7f080001;
         public static final int magnif_btn=0x7f08000c;
         public static final int magnif_layout=0x7f080030;
         public static final int magnif_picr=0x7f080031;
-        public static final int menu_settings=0x7f080033;
+        public static final int menu_settings=0x7f080032;
         public static final int move_btn=0x7f080005;
         public static final int pensizebold_btn=0x7f08001e;
         public static final int pensizefine_btn=0x7f080020;
@@ -104,9 +103,6 @@ public final class R {
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
-        public static final int main=0x7f030001;
-        public static final int menu=0x7f030002;
-        public static final int sendtime_layout=0x7f030003;
     }
     public static final class menu {
         public static final int activity_main=0x7f070000;
