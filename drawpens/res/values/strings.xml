@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">drawpen</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="menu_settings">Settings</string>
+    <string name="draw_title">Pen Input</string>
+    <string name="set_button">SET</string>
+    <string name="send_button">SEND</string>
+    <string name="edit_default_value">10</string>
+    <string name="move_button">[MOVE]</string>
+    <string name="backspace_button">BS</string>
+
+</resources>

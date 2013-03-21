@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <PreferenceCategory android:title="DrawPen Setting" >
+        <CheckBoxPreference
+            android:key="ch_send_button"
+            android:summary="プレビュー部への画像送信をボタンで行う"
+            android:title="Send Button" />
+        <CheckBoxPreference
+            android:key="ch_touch_event"
+            android:summary="タッチイベントで描画を行う"
+            android:title="Touch Event" />
+
+        <CheckBoxPreference
+            android:key="ch_bezier"
+            android:summary="描画部でベジェ曲線補正を表示する"
+            android:title="Bezier Preview" />
+        
+        <CheckBoxPreference
+            android:key="ch_input"
+            android:summary="相対座標入力ボタンの表示"
+            android:title="Coordinate input" />
+        
+        <CheckBoxPreference
+            android:key="ch_draw_button"
+            android:summary="描画部分をボタンで表示"
+            android:title="Draw View Button" />
+        
+        <Preference
+            android:key="back_key"
+            android:title="Back" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>
