@@ -67,25 +67,44 @@ public class WifiReceive {
 								if (st != null) {
 									int stPos = 0;
 									int edPos = 0;
+									int x=0,y=0,z=0;
+									boolean push=false;
+									boolean chk = true;
 									String chkStr = st.substring(stPos);
-									edPos = chkStr.indexOf(',');
-									int x = Integer.valueOf(chkStr.substring(0, edPos));
-									stPos = edPos+1;
+									if (chk == true && chkStr != null)
+									{
+										edPos = chkStr.indexOf(',');
+										x = Integer.valueOf(chkStr.substring(0, edPos));
+										stPos = edPos+1;
+										chk = false;
+									}
 			
 									chkStr = chkStr.substring(stPos);
-									edPos = chkStr.indexOf(',');
-									int y = Integer.valueOf(chkStr.substring(0, edPos));
-									stPos = edPos+1;
+									if (chk == true && chkStr != null)
+									{
+										edPos = chkStr.indexOf(',');
+										y = Integer.valueOf(chkStr.substring(0, edPos));
+										stPos = edPos+1;
+										chk = false;
+									}
 			
 									chkStr = chkStr.substring(stPos);
-									edPos = chkStr.indexOf(',');
-									int z = Integer.valueOf(chkStr.substring(0, edPos));
-									stPos = edPos+1;
+									if (chk == true && chkStr != null)
+									{
+										edPos = chkStr.indexOf(',');
+										z = Integer.valueOf(chkStr.substring(0, edPos));
+										stPos = edPos+1;
+										chk = false;
+									}
 			
 									chkStr = chkStr.substring(stPos);
-									boolean push = Boolean.valueOf(chkStr);
+									if (chk == true && chkStr != null)
+									{
+										push = Boolean.valueOf(chkStr);
+										chk = false;
+									}
 								
-									handler.receiveData(x, y, z, push);
+									if (chk) handler.receiveData(x, y, z, push);
 								} else {
 									enable = false;
 									if (buffer != null) {
@@ -102,10 +121,10 @@ public class WifiReceive {
 									}
 								}
 							} catch (SocketTimeoutException e) {
-/*								if (buffer != null) {
+								if (buffer != null) {
 									buffer.close();
 									buffer = null;
-								}*/
+								}
 							} catch (IOException e) {
 								if (buffer != null) {
 									buffer.close();

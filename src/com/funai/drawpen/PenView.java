@@ -8,11 +8,13 @@ package com.funai.drawpen;
 
 import java.util.ArrayList;
 
+import android.R.bool;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
@@ -43,8 +45,10 @@ public class PenView extends View {
 	private ArrayList<Paint> pen_list = new ArrayList<Paint>();
 	// ベジェ補正前曲線座標リスト
 	private ArrayList<Point> point_list = new ArrayList<Point>();
-
+	// 送信画像の全座標リスト
 	private ArrayList<CoordinateData> point_list_all = new ArrayList<CoordinateData>();
+	// ハフ変換で抽出された直線のリスト
+	private ArrayList<Path> line_list = new ArrayList<Path>();
 
 	// ベジェ曲線変異点リスト
 	private ArrayList<Integer> cp_list = new ArrayList<Integer>();
@@ -68,6 +72,7 @@ public class PenView extends View {
 
 	private int mWaitTime = 1000;
 	private int mMagnif = 1;
+	private boolean mRotate = true;;
 
 	private boolean mFastLine = true;
 
@@ -144,7 +149,6 @@ public class PenView extends View {
 
 			canvas2.drawPath(mPathBefor, mPaintBefor);
 			mPaintBefor.setColor(mPenColor);
-
 		}
 		int x = bitmap.getWidth();
 		int y = bitmap.getHeight();
@@ -157,6 +161,17 @@ public class PenView extends View {
 					+ " Y:" + ((int) ((double) y * mMag)));
 		Paint paint = new Paint();
 		canvas.drawBitmap(bitmap, src, dst, paint);
+
+		// 描画中線分の描画
+		if (mPaintBefor != null) {
+			for (int i = 0; i < line_list.size(); i++) {
+				mPaintBefor.setColor(Color.RED);
+
+				canvas.drawPath(line_list.get(i), mPaintBefor);
+			}
+			mPaintBefor.setColor(mPenColor);
+
+		}
 
 		// 変異点の描画
 		if (DEBUG_DRAW) {
@@ -295,7 +310,8 @@ public class PenView extends View {
 				int vecY = Math.abs(mMiddleY - absY);
 
 				double vec = Math.sqrt((double) (vecX * vecX + vecY * vecY));
-				Log.d(TAG, "vec:" + vec + " vecx:" + vecX + " vecy:" + vecY);
+				if (DEBUG)
+					Log.d(TAG, "vec:" + vec + " vecx:" + vecX + " vecy:" + vecY);
 
 				// 補正前曲線座標入力
 				mPathBefor.lineTo(absX, absY);
@@ -318,7 +334,7 @@ public class PenView extends View {
 
 							// 近似曲線算出
 							FurtherCorrect furtherCorrect = new FurtherCorrect();
-							//furtherCorrect.leastSquare(point_list);
+							// furtherCorrect.leastSquare(point_list);
 
 							// 変異点算出
 							BezierCP bezierCP = new BezierCP();
@@ -354,19 +370,13 @@ public class PenView extends View {
 							mP1LastX = (double) absX;
 							mP1LastY = (double) absY;
 
-							if (true) {
-								furtherCorrect.houghTransform(point_list, mPathCor);
-								
-//								mPathCor.cubicTo((float) Ri[0][0],
-//										(float) Ri[0][1], (float) Ri[1][0],
-//										(float) Ri[1][1], (float) absX,
-//										(float) absY);
-							} else {
-								for (int i = 1; i < point_list.size(); i++) {
-									mPathCor.lineTo(point_list.get(i).x,
-											point_list.get(i).y);
-								}
-							}
+							// furtherCorrect.houghTransform(point_list,
+							// mPathCor, this);
+
+							mPathCor.cubicTo((float) Ri[0][0],
+									(float) Ri[0][1], (float) Ri[1][0],
+									(float) Ri[1][1], (float) absX,
+									(float) absY);
 
 							// pathとpaintの初期化
 							point_list.clear();
@@ -414,6 +424,10 @@ public class PenView extends View {
 
 				if (mLineCount > 2) {
 					// 変異点算出
+					// FurtherCorrect furtherCorrect= new FurtherCorrect();
+					// furtherCorrect.houghTransform(point_list, mPathCor,
+					// this);
+
 					BezierCP bezierCP = new BezierCP();
 					Ri = bezierCP.calControPoint(point_list, 20);
 					if (DEBUG)
@@ -890,10 +904,38 @@ public class PenView extends View {
 		for (int i = 0; i < bezier_list.size(); i++) {
 			Path pt = bezier_list.get(i);
 			Paint pen = pen_list.get(i);
+
 			canvas.drawPath(pt, pen);
 		}
 
-		return bitmap;
+		if (mRotate) {
+			DataConvert dataConvert = new DataConvert(
+					new DataConvertEventHandler() {
+					});
+			float rotate = (float) (dataConvert
+					.DataConvert_rotate(point_list_all) * 180 / Math.PI);
+			// if (DEBUG)
+			Log.d(TAG, "rotate:" + rotate);
+			Log.d(TAG, "width:" + mMaxX + " heigth" + mMaxY + " mPenWidth:"
+					+ mPenWidth);
+
+			// 回転マトリックス作成
+			Matrix mat = new Matrix();
+			mat.postRotate(rotate);
+			if (Float.isNaN(rotate)) {
+				Log.d(TAG, "rotate is NaN");
+				return bitmap;
+
+			}
+			// 回転したビットマップを作成
+			Bitmap bitmap_tmp = Bitmap.createBitmap(bitmap, 0, 0, mMaxX
+					+ mPenWidth, mMaxY + mPenWidth, mat, true);
+
+			return bitmap_tmp;
+		} else {
+			return bitmap;
+
+		}
 	}
 
 	// 全消し
@@ -901,6 +943,7 @@ public class PenView extends View {
 		pen_list.clear();
 		bezier_list.clear();
 		draw_list.clear();
+		line_list.clear();
 		point_list.clear();
 		point_list_all.clear();
 		cp_list.clear();
@@ -1015,5 +1058,13 @@ public class PenView extends View {
 	// 親Activity取得
 	public void setParentActivity(PenActivity penActivity) {
 		mPenActivity = penActivity;
+	}
+
+	public void setLine(Path path) {
+		line_list.add(path);
+	}
+
+	public void setRotate(boolean rotate) {
+		mRotate = rotate;
 	}
 }

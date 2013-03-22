@@ -47,6 +47,8 @@ public class PenActivity extends Activity implements OnClickListener,
 
 	boolean color_toggle = true;
 	boolean pen_toggle = true;
+	
+	boolean rotation_toggle = true;
 
 	final public int UP_DOWN = 0;
 	final public int LEFT_RIGHT = 1;
@@ -56,6 +58,7 @@ public class PenActivity extends Activity implements OnClickListener,
 	private ImageButton imgb_timeconf;
 	private ImageButton imgb_magnif;
 	private ImageButton imgb_erase;
+	private ImageButton imgb_rotaion;
 
 	private ImageButton imgb_setcolor;
 	private ImageButton imgb_colorblack;
@@ -189,6 +192,9 @@ public class PenActivity extends Activity implements OnClickListener,
 		imgb_magnif.setOnClickListener(this);
 		imgb_erase = (ImageButton) findViewById(R.id.erase_btn);
 		imgb_erase.setOnClickListener(this);
+		imgb_rotaion = (ImageButton) findViewById(R.id.rotation_btn);
+		imgb_rotaion.setOnClickListener(this);
+		
 		imgb_colorblack = (ImageButton) findViewById(R.id.colorblack_btn);
 		imgb_colorblack.setOnClickListener(this);
 		imgb_colorblue = (ImageButton) findViewById(R.id.colorblue_btn);
@@ -322,7 +328,14 @@ public class PenActivity extends Activity implements OnClickListener,
 				canvasIn.setVisibility(Button.INVISIBLE);
 			}
 		}
-
+		
+		if(rotation_toggle){
+			imgb_rotaion.setImageResource(R.drawable.tool_rotation_on);			
+		}else{
+			imgb_rotaion.setImageResource(R.drawable.tool_rotation_off);			
+		}
+		penView.setRotate(rotation_toggle);
+		
 		wifiConnectStart(32346);
 	}
 
@@ -406,6 +419,17 @@ public class PenActivity extends Activity implements OnClickListener,
 				mag_toggle = true;
 				magnifview.setVisibility(RelativeLayout.INVISIBLE);
 			}
+			break;
+		case R.id.rotation_btn:
+			if(rotation_toggle){
+				rotation_toggle=false;
+				imgb_rotaion.setImageResource(R.drawable.tool_rotation_off);			
+			}else{
+				rotation_toggle=true;
+				imgb_rotaion.setImageResource(R.drawable.tool_rotation_on);			
+			}
+			penView.setRotate(rotation_toggle);
+
 			break;
 
 		// 描画部ツールバー
