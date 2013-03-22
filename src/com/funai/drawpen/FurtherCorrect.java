@@ -162,19 +162,29 @@ public class FurtherCorrect {
 			Log.d(TAG, "houghTransform");
 		int i = 0, j = 0, last = 0;
 		Point point_n = null;
-		for (i = 0; i < point_list.size(); i++) {
+		for (i = 0; i < point_list.size() - 1; i++) {
 			Point point_1 = point_list.get(i);
 			Point point_2 = point_list.get(i + 1);
 			int a, b, count = 0;
-
-			a = (point_2.y - point_1.y) / (point_2.x - point_1.x);
-			b = point_1.y - a * point_1.x;
-			for (j = i + 2; j < point_list.size(); j++) {
-				point_n = point_list.get(j);
-				if (point_n.y == a * point_n.x + b) {
-					count++;
-				} else {
-					break;
+			if ((point_2.x != point_1.x)) {
+				a = (point_2.y - point_1.y) / (point_2.x - point_1.x);
+				b = point_1.y - a * point_1.x;
+				for (j = i + 2; j < point_list.size(); j++) {
+					point_n = point_list.get(j);
+					if (point_n.y == a * point_n.x + b) {
+						count++;
+					} else {
+						break;
+					}
+				}
+			} else {
+				for (j = i + 2; j < point_list.size(); j++) {
+					point_n = point_list.get(j);
+					if (point_n.x == point_1.x) {
+						count++;
+					} else {
+						break;
+					}
 				}
 			}
 
@@ -205,7 +215,6 @@ public class FurtherCorrect {
 			} else {
 				last++;
 			}
-
 		}
 		if (last == 0) {
 			return;
@@ -221,9 +230,6 @@ public class FurtherCorrect {
 			path.cubicTo((float) Ri[0][0], (float) Ri[0][1], (float) Ri[1][0],
 					(float) Ri[1][1], (float) point_list.get(i).x,
 					(float) point_list.get(i).y);
-
-			i = j;
-			last = 0;
 		} else {
 			path.lineTo((float) point_list.get(i).x,
 					(float) point_list.get(i).y);

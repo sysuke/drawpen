@@ -318,7 +318,7 @@ public class PenView extends View {
 
 							// 近似曲線算出
 							FurtherCorrect furtherCorrect = new FurtherCorrect();
-							// furtherCorrect.leastSquare(point_list);
+							//furtherCorrect.leastSquare(point_list);
 
 							// 変異点算出
 							BezierCP bezierCP = new BezierCP();
