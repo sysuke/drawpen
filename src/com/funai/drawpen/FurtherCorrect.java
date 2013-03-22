@@ -77,10 +77,10 @@ public class FurtherCorrect {
 	}
 
 	// 最小二乗法
-	public void leastSquare(ArrayList<Integer> point_list) {
+	public void leastSquare(ArrayList<Point> point_list) {
 		if (DEBUG)
 			Log.d(TAG, "leastSquare");
-		int listSize = point_list.size() / 2;
+		int listSize = point_list.size();
 		int i, j, k;
 		double X, Y;
 		double x[] = new double[listSize];
@@ -89,9 +89,8 @@ public class FurtherCorrect {
 		double xx[] = new double[N];
 
 		for (i = 0; i < point_list.size(); i++) {
-			x[i / 2] = (double) point_list.get(i);
-			i++;
-			y[i / 2] = (double) point_list.get(i);
+			x[i] = (double) point_list.get(i).x;
+			y[i] = (double) point_list.get(i).y;
 			if (DEBUG)
 				Log.d(TAG, i / 2 + "x:\t" + x[(i - 1) / 2] + "\ty:\t"
 						+ y[i / 2]);
@@ -128,8 +127,7 @@ public class FurtherCorrect {
 				for (i = 0; i < N; i++) {
 					Y += xx[i] * Math.pow(X, i);
 				}
-				point_list.add((int) X);
-				point_list.add((int) Y);
+				point_list.add(new Point((int)X,(int)Y));
 
 				if (DEBUG)
 					Log.d(TAG, "X:\t" + X + "\t Y:\t" + Y);
@@ -140,8 +138,7 @@ public class FurtherCorrect {
 				for (i = 0; i < N; i++) {
 					Y += xx[i] * Math.pow(X, i);
 				}
-				point_list.add((int) X);
-				point_list.add((int) Y);
+				point_list.add(new Point((int)X,(int)Y));
 
 				if (DEBUG)
 					Log.d(TAG, "X:\t" + X + "\t Y:\t" + Y);
@@ -150,8 +147,7 @@ public class FurtherCorrect {
 		}
 		if (point_list.size() == 0) {
 			for (i = 0; i < listSize; i++) {
-				point_list.add((int) x[i]);
-				point_list.add((int) y[i]);
+				point_list.add(new Point((int)x[i],(int)y[i]));
 			}
 		}
 
