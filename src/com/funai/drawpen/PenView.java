@@ -246,7 +246,7 @@ public class PenView extends View {
 				// 始点入力
 				mPathCor.moveTo(absX, absY);
 				mPathBefor.moveTo(absX, absY);
-				point_list.add(new Point(absX,absY));
+				point_list.add(new Point(absX, absY));
 				point_list_all.add(new CoordinateData(absX, absY,
 						CoordinateData.DOWN));
 
@@ -300,7 +300,7 @@ public class PenView extends View {
 				// 補正前曲線座標入力
 				mPathBefor.lineTo(absX, absY);
 
-				point_list.add(new Point(absX,absY));
+				point_list.add(new Point(absX, absY));
 				point_list_all.add(new CoordinateData(absX, absY,
 						CoordinateData.MOVE));
 
@@ -317,8 +317,7 @@ public class PenView extends View {
 								Log.d(TAG, "absX:" + absX + " absY" + absY);
 
 							// 近似曲線算出
-							// FurtherCorrect furtherCorrect = new
-							// FurtherCorrect();
+							FurtherCorrect furtherCorrect = new FurtherCorrect();
 							// furtherCorrect.leastSquare(point_list);
 
 							// 変異点算出
@@ -356,20 +355,23 @@ public class PenView extends View {
 							mP1LastY = (double) absY;
 
 							if (true) {
-								mPathCor.cubicTo((float) Ri[0][0],
-										(float) Ri[0][1], (float) Ri[1][0],
-										(float) Ri[1][1], (float) absX,
-										(float) absY);
+								furtherCorrect.houghTransform(point_list, mPathCor);
+								
+//								mPathCor.cubicTo((float) Ri[0][0],
+//										(float) Ri[0][1], (float) Ri[1][0],
+//										(float) Ri[1][1], (float) absX,
+//										(float) absY);
 							} else {
 								for (int i = 1; i < point_list.size(); i++) {
-									mPathCor.lineTo(point_list.get(i).x, point_list.get(i).y);
+									mPathCor.lineTo(point_list.get(i).x,
+											point_list.get(i).y);
 								}
 							}
 
 							// pathとpaintの初期化
 							point_list.clear();
 							// 始点入力
-							point_list.add(new Point(absX,absY));
+							point_list.add(new Point(absX, absY));
 
 						}
 					}
@@ -406,7 +408,7 @@ public class PenView extends View {
 				mPathBefor.lineTo(absX, absY);
 				invalidate();
 
-				point_list.add(new Point(absX,absY));
+				point_list.add(new Point(absX, absY));
 				point_list_all.add(new CoordinateData(absX, absY,
 						CoordinateData.UP));
 
@@ -554,16 +556,16 @@ public class PenView extends View {
 			}
 			for (int i = 0; i < point_list.size(); i++) {
 				Point point = point_list.get(i);
-				point.set(point.x + diffX,point.y + diffY);
+				point.set(point.x + diffX, point.y + diffY);
 				point_list.set(i, point);
 			}
 			for (int i = 0; i < point_list_all.size(); i++) {
-				CoordinateData coordinateData=point_list_all.get(i);
-				coordinateData.x+=diffX;
-				coordinateData.y+=diffY;
+				CoordinateData coordinateData = point_list_all.get(i);
+				coordinateData.x += diffX;
+				coordinateData.y += diffY;
 				point_list_all.set(i, coordinateData);
-				
-		}
+
+			}
 			for (int i = 0; i < bezier_list.size(); i++) {
 				Path pt = bezier_list.get(i);
 				pt.offset(diffX, diffY);
@@ -646,7 +648,7 @@ public class PenView extends View {
 				// 始点入力
 				mPathCor.moveTo(absX, absY);
 				mPathBefor.moveTo(absX, absY);
-				point_list.add(new Point(absX,absY));
+				point_list.add(new Point(absX, absY));
 				point_list_all.add(new CoordinateData(absX, absY,
 						CoordinateData.DOWN));
 
@@ -707,7 +709,7 @@ public class PenView extends View {
 					// 補正前曲線座標入力
 					mPathBefor.lineTo(absX, absY);
 
-					point_list.add(new Point(absX,absY));
+					point_list.add(new Point(absX, absY));
 					point_list_all.add(new CoordinateData(absX, absY,
 							CoordinateData.MOVE));
 
@@ -760,7 +762,7 @@ public class PenView extends View {
 							// pathとpaintの初期化
 							point_list.clear();
 							// 始点入力
-							point_list.add(new Point(absX,absY));
+							point_list.add(new Point(absX, absY));
 
 						}
 					}
@@ -791,7 +793,7 @@ public class PenView extends View {
 				mPathBefor.lineTo(absX, absY);
 				invalidate();
 
-				point_list.add(new Point(absX,absY));
+				point_list.add(new Point(absX, absY));
 				point_list_all.add(new CoordinateData(absX, absY,
 						CoordinateData.UP));
 

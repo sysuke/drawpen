@@ -12,6 +12,8 @@ public class FurtherCorrect {
 	private boolean DEBUG = true;
 	// 3次多項式で近似
 	int N = 4;
+	//
+	int TH = 5;
 
 	// ガウス変換
 	private void gauss(double a[][], double xx[]) {
@@ -127,7 +129,7 @@ public class FurtherCorrect {
 				for (i = 0; i < N; i++) {
 					Y += xx[i] * Math.pow(X, i);
 				}
-				point_list.add(new Point((int)X,(int)Y));
+				point_list.add(new Point((int) X, (int) Y));
 
 				if (DEBUG)
 					Log.d(TAG, "X:\t" + X + "\t Y:\t" + Y);
@@ -138,7 +140,7 @@ public class FurtherCorrect {
 				for (i = 0; i < N; i++) {
 					Y += xx[i] * Math.pow(X, i);
 				}
-				point_list.add(new Point((int)X,(int)Y));
+				point_list.add(new Point((int) X, (int) Y));
 
 				if (DEBUG)
 					Log.d(TAG, "X:\t" + X + "\t Y:\t" + Y);
@@ -147,38 +149,86 @@ public class FurtherCorrect {
 		}
 		if (point_list.size() == 0) {
 			for (i = 0; i < listSize; i++) {
-				point_list.add(new Point((int)x[i],(int)y[i]));
+				point_list.add(new Point((int) x[i], (int) y[i]));
 			}
 		}
 
 		return;
 	}
 
-	// 確率的ハフ変換
-	public Path houghTransform(ArrayList<Point> point_list) {
-		Path path = new Path();
+	// ハフ変換(を一部流用したハフ変換ではない何か)
+	public void houghTransform(ArrayList<Point> point_list, Path path) {
 		if (DEBUG)
 			Log.d(TAG, "houghTransform");
-		
-		
-		
-		for(int i=0;i<point_list.size();i++){
-			
+		int i = 0, j = 0, last = 0;
+		Point point_n = null;
+		for (i = 0; i < point_list.size(); i++) {
+			Point point_1 = point_list.get(i);
+			Point point_2 = point_list.get(i + 1);
+			int a, b, count = 0;
+
+			a = (point_2.y - point_1.y) / (point_2.x - point_1.x);
+			b = point_1.y - a * point_1.x;
+			for (j = i + 2; j < point_list.size(); j++) {
+				point_n = point_list.get(j);
+				if (point_n.y == a * point_n.x + b) {
+					count++;
+				} else {
+					break;
+				}
+			}
+
+			if (count > TH) {
+				if (last > 2) {
+					ArrayList<Point> tmp_point_list = new ArrayList<Point>();
+					for (int k = i - last; k < i; k++) {
+						tmp_point_list.add(point_list.get(k));
+					}
+					double Ri[][] = new double[2][2];
+					BezierCP bezierCP = new BezierCP();
+
+					Ri = bezierCP.calControPoint(tmp_point_list, 20);
+					path.cubicTo((float) Ri[0][0], (float) Ri[0][1],
+							(float) Ri[1][0], (float) Ri[1][1],
+							(float) point_list.get(i).x,
+							(float) point_list.get(i).y);
+
+					path.lineTo((float) point_n.x, (float) point_n.y);
+
+					i = j;
+					last = 0;
+				} else {
+					path.lineTo((float) point_n.x, (float) point_n.y);
+					i = j;
+				}
+
+			} else {
+				last++;
+			}
+
 		}
-		
-		
-		
-		
-		double Ri[][] = new double[2][2];
-		BezierCP bezierCP = new BezierCP();
+		if (last == 0) {
+			return;
+		} else if (last > 2) {
+			ArrayList<Point> tmp_point_list = new ArrayList<Point>();
+			for (int k = i - last; k < i; k++) {
+				tmp_point_list.add(point_list.get(k));
+			}
+			double Ri[][] = new double[2][2];
+			BezierCP bezierCP = new BezierCP();
 
-		Ri = bezierCP.calControPoint(point_list, 20);
-		path.cubicTo((float) Ri[0][0], (float) Ri[0][1], (float) Ri[1][0],
-				(float) Ri[1][1],
-				(float) point_list.get(point_list.size() - 2).x,
-				(float) point_list.get(point_list.size() - 1).y);
+			Ri = bezierCP.calControPoint(tmp_point_list, 20);
+			path.cubicTo((float) Ri[0][0], (float) Ri[0][1], (float) Ri[1][0],
+					(float) Ri[1][1], (float) point_list.get(i).x,
+					(float) point_list.get(i).y);
 
-		return path;
+			i = j;
+			last = 0;
+		} else {
+			path.lineTo((float) point_list.get(i).x,
+					(float) point_list.get(i).y);
+		}
+
+		return;
 	}
-
 }
