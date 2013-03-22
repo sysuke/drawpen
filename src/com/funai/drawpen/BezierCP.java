@@ -8,6 +8,8 @@ package com.funai.drawpen;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+
+import android.graphics.Point;
 import android.util.Log;
 
 public class BezierCP {
@@ -226,8 +228,8 @@ public class BezierCP {
 	// ###### 統合部
 	// ##########################################
 
-	public double[][] calControPoint(ArrayList<Integer> point_list, final int lp) {
-		int m = point_list.size() / 2;
+	public double[][] calControPoint(ArrayList<Point> point_list, final int lp) {
+		int m = point_list.size();
 
 		double t[][] = new double[m][2];
 		int Qi[][] = new int[m][2];
@@ -241,7 +243,8 @@ public class BezierCP {
 
 		// 曲線点列入力
 		for (int i = 0; i < point_list.size(); i++) {
-			Qi[i / 2][i % 2] = point_list.get(i);
+			Qi[i][0] = point_list.get(i).x;
+			Qi[i][1] = point_list.get(i).y;
 		}
 
 		// 始点・終点入力

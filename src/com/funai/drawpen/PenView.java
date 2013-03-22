@@ -15,6 +15,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.os.Handler;
 import android.util.AttributeSet;
@@ -41,7 +42,7 @@ public class PenView extends View {
 	// ペン先リスト
 	private ArrayList<Paint> pen_list = new ArrayList<Paint>();
 	// ベジェ補正前曲線座標リスト
-	private ArrayList<Integer> point_list = new ArrayList<Integer>();
+	private ArrayList<Point> point_list = new ArrayList<Point>();
 
 	private ArrayList<CoordinateData> point_list_all = new ArrayList<CoordinateData>();
 
@@ -245,8 +246,7 @@ public class PenView extends View {
 				// 始点入力
 				mPathCor.moveTo(absX, absY);
 				mPathBefor.moveTo(absX, absY);
-				point_list.add(absX);
-				point_list.add(absY);
+				point_list.add(new Point(absX,absY));
 				point_list_all.add(new CoordinateData(absX, absY,
 						CoordinateData.DOWN));
 
@@ -300,8 +300,7 @@ public class PenView extends View {
 				// 補正前曲線座標入力
 				mPathBefor.lineTo(absX, absY);
 
-				point_list.add((int) absX);
-				point_list.add((int) absY);
+				point_list.add(new Point(absX,absY));
 				point_list_all.add(new CoordinateData(absX, absY,
 						CoordinateData.MOVE));
 
@@ -362,20 +361,15 @@ public class PenView extends View {
 										(float) Ri[1][1], (float) absX,
 										(float) absY);
 							} else {
-								for (int i = 2; i < point_list.size() - 1; i++) {
-									int x = point_list.get(i);
-									i++;
-									int y = point_list.get(i);
-
-									mPathCor.lineTo(x, y);
+								for (int i = 1; i < point_list.size(); i++) {
+									mPathCor.lineTo(point_list.get(i).x, point_list.get(i).y);
 								}
 							}
 
 							// pathとpaintの初期化
 							point_list.clear();
 							// 始点入力
-							point_list.add(absX);
-							point_list.add(absY);
+							point_list.add(new Point(absX,absY));
 
 						}
 					}
@@ -412,8 +406,7 @@ public class PenView extends View {
 				mPathBefor.lineTo(absX, absY);
 				invalidate();
 
-				point_list.add((int) absX);
-				point_list.add((int) absY);
+				point_list.add(new Point(absX,absY));
 				point_list_all.add(new CoordinateData(absX, absY,
 						CoordinateData.UP));
 
@@ -560,17 +553,17 @@ public class PenView extends View {
 				mPathCor.offset(diffX, diffY);
 			}
 			for (int i = 0; i < point_list.size(); i++) {
-				int xi = point_list.get(i);
-				xi += diffX;
-				point_list.set(i, xi);
-				i++;
-				int yi = point_list.get(i);
-				yi += diffY;
-				point_list.set(i, yi);
+				Point point = point_list.get(i);
+				point.set(point.x + diffX,point.y + diffY);
+				point_list.set(i, point);
 			}
 			for (int i = 0; i < point_list_all.size(); i++) {
-				point_list_all.remove(i);
-			}
+				CoordinateData coordinateData=point_list_all.get(i);
+				coordinateData.x+=diffX;
+				coordinateData.y+=diffY;
+				point_list_all.set(i, coordinateData);
+				
+		}
 			for (int i = 0; i < bezier_list.size(); i++) {
 				Path pt = bezier_list.get(i);
 				pt.offset(diffX, diffY);
@@ -653,8 +646,7 @@ public class PenView extends View {
 				// 始点入力
 				mPathCor.moveTo(absX, absY);
 				mPathBefor.moveTo(absX, absY);
-				point_list.add(absX);
-				point_list.add(absY);
+				point_list.add(new Point(absX,absY));
 				point_list_all.add(new CoordinateData(absX, absY,
 						CoordinateData.DOWN));
 
@@ -715,8 +707,7 @@ public class PenView extends View {
 					// 補正前曲線座標入力
 					mPathBefor.lineTo(absX, absY);
 
-					point_list.add((int) absX);
-					point_list.add((int) absY);
+					point_list.add(new Point(absX,absY));
 					point_list_all.add(new CoordinateData(absX, absY,
 							CoordinateData.MOVE));
 
@@ -769,8 +760,7 @@ public class PenView extends View {
 							// pathとpaintの初期化
 							point_list.clear();
 							// 始点入力
-							point_list.add(absX);
-							point_list.add(absY);
+							point_list.add(new Point(absX,absY));
 
 						}
 					}
@@ -801,8 +791,7 @@ public class PenView extends View {
 				mPathBefor.lineTo(absX, absY);
 				invalidate();
 
-				point_list.add((int) absX);
-				point_list.add((int) absY);
+				point_list.add(new Point(absX,absY));
 				point_list_all.add(new CoordinateData(absX, absY,
 						CoordinateData.UP));
 

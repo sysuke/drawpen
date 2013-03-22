@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import android.graphics.Path;
+import android.graphics.Point;
 import android.util.Log;
 
 public class FurtherCorrect {
@@ -158,7 +159,7 @@ public class FurtherCorrect {
 	}
 
 	// 確率的ハフ変換
-	public Path houghTransform(ArrayList<Integer> point_list) {
+	public Path houghTransform(ArrayList<Point> point_list) {
 		Path path = new Path();
 		if (DEBUG)
 			Log.d(TAG, "houghTransform");
@@ -178,8 +179,8 @@ public class FurtherCorrect {
 		Ri = bezierCP.calControPoint(point_list, 20);
 		path.cubicTo((float) Ri[0][0], (float) Ri[0][1], (float) Ri[1][0],
 				(float) Ri[1][1],
-				(float) point_list.get(point_list.size() - 2),
-				(float) point_list.get(point_list.size() - 1));
+				(float) point_list.get(point_list.size() - 2).x,
+				(float) point_list.get(point_list.size() - 1).y);
 
 		return path;
 	}
