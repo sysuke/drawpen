@@ -11,24 +11,24 @@ import java.util.ArrayList;
 import android.util.Log;
 
 public class BezierCP {
-	private final static String TAG = "BezierCP";
-	static boolean DEBUG = false;
-	static boolean DEBUG2 = false;
+	private final   String TAG = "BezierCP";
+	private boolean DEBUG = false;
+	private boolean DEBUG2 = false;
 
 	// 制御点の数-1
-	static final int n = 3;
+	private final int n = 3;
 	// 許容する評価式の値
-	static final double eval = 0.001;
+	private final double eval = 0.001;
 
 	// ログ成形用フォーマット
-	static DecimalFormat df1 = new DecimalFormat("0.0000");
+	private DecimalFormat df1 = new DecimalFormat("0.0000");
 
 	// ##########################################
 	// ###### 数列計算
-	// ##########################################
+	// ###########################private#########
 
 	// 階乗
-	static int factorial(int n) {
+	private int factorial(int n) {
 		int fact = 1;
 		if (n == 0) {
 			return fact;
@@ -40,7 +40,7 @@ public class BezierCP {
 	}
 
 	// 逆行列
-	static double[][] inverse_matrix(double A[][]) {
+	private double[][] inverse_matrix(double A[][]) {
 		double B[][] = new double[2][2];
 		double delta = A[0][0] * A[1][1] - A[0][1] * A[1][0];
 		B[0][0] = 1 / delta * A[1][1];
@@ -55,7 +55,7 @@ public class BezierCP {
 	// ##########################################
 
 	// バーンシュタイン基底関数
-	static double bernstein(int i, double t, int n) {
+	private double bernstein(int i, double t, int n) {
 		double ans;
 		ans = factorial(n) / (factorial(n - i) * factorial(i)) * Math.pow(t, i)
 				* Math.pow((1 - t), (double) (n - i));
@@ -63,7 +63,7 @@ public class BezierCP {
 	}
 
 	// 変異点算出
-	static double[][] mutation(int Qi[][], int m, double t[][]) {
+	private double[][] mutation(int Qi[][], int m, double t[][]) {
 		int i, j, k;
 		double Ax[][], Ay[][], Qix, Qiy, x[], y[];
 		Ax = new double[2][2];
@@ -124,7 +124,7 @@ public class BezierCP {
 	// ##########################################
 
 	// ベジェ曲線
-	static int genBezier(double pCont[][], double point[][], double t[][]) {
+	private int genBezier(double pCont[][], double point[][], double t[][]) {
 		int tc;
 		tc = 0;
 		for (int i = 0; i < point.length; i++) {
@@ -143,7 +143,7 @@ public class BezierCP {
 	}
 
 	// 反復解法によるデルタt算出　
-	static int deltat(int m, int Qi[][], double Pi[][], double t[][]) {
+	private int deltat(int m, int Qi[][], double Pi[][], double t[][]) {
 		if (DEBUG2)
 			Log.d(TAG, "delta_t m:" + m);
 
@@ -226,7 +226,7 @@ public class BezierCP {
 	// ###### 統合部
 	// ##########################################
 
-	static double[][] calControPoint(ArrayList<Integer> point_list, final int lp) {
+	public double[][] calControPoint(ArrayList<Integer> point_list, final int lp) {
 		int m = point_list.size() / 2;
 
 		double t[][] = new double[m][2];

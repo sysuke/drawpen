@@ -295,8 +295,8 @@ public class PenView extends View {
 				int vecY = Math.abs(mMiddleY - absY);
 
 				double vec = Math.sqrt((double) (vecX * vecX + vecY * vecY));
-				Log.d(TAG,"vec:" + vec+" vecx:"+vecX+" vecy:"+vecY);
-				
+				Log.d(TAG, "vec:" + vec + " vecx:" + vecX + " vecy:" + vecY);
+
 				// 補正前曲線座標入力
 				mPathBefor.lineTo(absX, absY);
 
@@ -304,13 +304,11 @@ public class PenView extends View {
 				point_list.add((int) absY);
 				point_list_all.add(new CoordinateData(absX, absY,
 						CoordinateData.MOVE));
-				
+
 				if (vec > 20.0) {
-	
+
 					mMiddleX = absX;
 					mMiddleY = absY;
-
-
 
 					// 極大で曲線切断
 					if (saX < mLoMaxX || saY < mLoMaxY) {
@@ -320,11 +318,13 @@ public class PenView extends View {
 								Log.d(TAG, "absX:" + absX + " absY" + absY);
 
 							// 近似曲線算出
-							FurtherCorrect furtherCorrect = new FurtherCorrect();
-							furtherCorrect.leastSquare(point_list);
+							// FurtherCorrect furtherCorrect = new
+							// FurtherCorrect();
+							// furtherCorrect.leastSquare(point_list);
 
 							// 変異点算出
-							Ri = BezierCP.calControPoint(point_list, 20);
+							BezierCP bezierCP = new BezierCP();
+							Ri = bezierCP.calControPoint(point_list, 20);
 
 							cp_list.add((int) Ri[0][0]);
 							cp_list.add((int) Ri[0][1]);
@@ -338,41 +338,39 @@ public class PenView extends View {
 										+ "] R1[" + Ri[1][0] + "," + Ri[1][1]
 										+ "]");
 
-							
-//							 // ベジェ曲線接続時の変異点修正 if (mFastP) { mFastP = false; }
-//							{
-//								double a = mP0LastY - mP1LastY;
-//								double b = mP1LastX - mP0LastX;
-//								double c = mP0LastX * mP1LastY - mP1LastX
-//										* mP0LastY;
-//
-//								Ri[0][0] -= (a * Ri[0][0] + b * Ri[0][1] + c)
-//										/ (a * a + b * b) * a;
-//								Ri[0][1] -= (a * Ri[0][0] + b * Ri[0][1] + c)
-//										/ (a * a + b * b) * b;
-//							}
+							// // ベジェ曲線接続時の変異点修正 if (mFastP) { mFastP = false; }
+							// {
+							// double a = mP0LastY - mP1LastY;
+							// double b = mP1LastX - mP0LastX;
+							// double c = mP0LastX * mP1LastY - mP1LastX
+							// * mP0LastY;
+							//
+							// Ri[0][0] -= (a * Ri[0][0] + b * Ri[0][1] + c)
+							// / (a * a + b * b) * a;
+							// Ri[0][1] -= (a * Ri[0][0] + b * Ri[0][1] + c)
+							// / (a * a + b * b) * b;
+							// }
 
-							
 							mP0LastX = Ri[1][0];
 							mP0LastY = Ri[1][1];
 							mP1LastX = (double) absX;
 							mP1LastY = (double) absY;
 
-							if(true){
-							mPathCor.cubicTo((float) Ri[0][0],
-									(float) Ri[0][1], (float) Ri[1][0],
-									(float) Ri[1][1], (float) absX,
-									(float) absY);
-							}else{
-								for(int i=2;i<point_list.size()-1;i++){
-									int x=point_list.get(i);
+							if (true) {
+								mPathCor.cubicTo((float) Ri[0][0],
+										(float) Ri[0][1], (float) Ri[1][0],
+										(float) Ri[1][1], (float) absX,
+										(float) absY);
+							} else {
+								for (int i = 2; i < point_list.size() - 1; i++) {
+									int x = point_list.get(i);
 									i++;
-									int y=point_list.get(i);
+									int y = point_list.get(i);
 
 									mPathCor.lineTo(x, y);
 								}
 							}
-							
+
 							// pathとpaintの初期化
 							point_list.clear();
 							// 始点入力
@@ -421,7 +419,8 @@ public class PenView extends View {
 
 				if (mLineCount > 2) {
 					// 変異点算出
-					Ri = BezierCP.calControPoint(point_list, 20);
+					BezierCP bezierCP = new BezierCP();
+					Ri = bezierCP.calControPoint(point_list, 20);
 					if (DEBUG)
 						Log.d(TAG, "Last R0[" + Ri[0][0] + "," + Ri[0][1]
 								+ "] R1[" + Ri[0][0] + "," + Ri[0][0]
@@ -728,7 +727,8 @@ public class PenView extends View {
 							if (DEBUG)
 								Log.d(TAG, "absX:" + absX + " absY" + absY);
 							// 変異点算出
-							Ri = BezierCP.calControPoint(point_list, 20);
+							BezierCP bezierCP = new BezierCP();
+							Ri = bezierCP.calControPoint(point_list, 20);
 
 							cp_list.add((int) Ri[0][0]);
 							cp_list.add((int) Ri[0][1]);
@@ -809,7 +809,8 @@ public class PenView extends View {
 				// 変異点算出
 				if (mLineCount > 1) {
 					// 変異点算出
-					Ri = BezierCP.calControPoint(point_list, 20);
+					BezierCP bezierCP = new BezierCP();
+					Ri = bezierCP.calControPoint(point_list, 20);
 					if (DEBUG)
 						Log.d(TAG, "Last R0[" + Ri[0][0] + "," + Ri[0][1]
 								+ "] R1[" + Ri[0][0] + "," + Ri[0][0]
