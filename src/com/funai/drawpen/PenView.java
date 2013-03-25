@@ -8,7 +8,6 @@ package com.funai.drawpen;
 
 import java.util.ArrayList;
 
-import android.R.bool;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
