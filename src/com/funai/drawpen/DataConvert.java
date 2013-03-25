@@ -2,6 +2,7 @@ package com.funai.drawpen;
 
 import java.util.ArrayList;
 import android.graphics.Point;
+import android.util.Log;
 
 //! @brief データ変換処理群
 public class DataConvert {
@@ -43,7 +44,9 @@ public class DataConvert {
 				DataConvert_rotate_upMove(getData);
 			}
 		}
-		return DataConvert_rotate_call();
+		double x = inData.get(inData.size()-1).x - inData.get(0).x;
+		double y = inData.get(inData.size()-1).y - inData.get(0).y;
+		return DataConvert_rotate_call(x,y);
 	}
 
 	//! 押した時 → 一時保管配列に保存
@@ -52,16 +55,22 @@ public class DataConvert {
 	}
 	//! 離した時 → 一時保持配列からY最大値(一番下)とその位置のXを取得し近似用配列に保存
 	private void DataConvert_rotate_up(CoordinateData inData) {
-		int x = 0;
-		int y = inData.y;
+		int maxX = inData.x;
+		int maxY = inData.y;
+		int minX = inData.x;
+		int minY = inData.y;
 		for (int i=0; i<lineData.size(); i++) {
 			CoordinateData select = lineData.get(i);
-			if (y < select.y) {
-				y = select.y;
-				x = select.x;
+			if (maxY < select.y) {
+				maxY = select.y;
+				maxY = select.x;
+			} else if (minY > select.y) {
+				minY = select.y;
+				minX = select.x;
 			}
 		}
-		selectData.add(new Point(x, y));
+		selectData.add(new Point(minX, minY));
+		selectData.add(new Point(maxX, maxY));
 		lineData.clear();
 	}
 	//! 描画中 → 一時保管配列に保存
@@ -72,7 +81,7 @@ public class DataConvert {
 	private void DataConvert_rotate_upMove(CoordinateData inData) {
 	}
 	//! 近似直線を求め、直線の傾きから角度を求める。
-	private double DataConvert_rotate_call() {
+	private double DataConvert_rotate_call(double x, double y) {
 		double x_bar = 0;
 		double y_bar = 0;
 
@@ -89,9 +98,17 @@ public class DataConvert {
 			xi1 += (data.x - x_bar)*(data.x - x_bar);
 			xi2 += (data.x - x_bar)*(data.y - y_bar);
 		}
-		double a = xi2/xi1;
-//		double b = y_bar - (a * x_bar);
-		
-		return Math.atan(a);
+		Log.d("rotate","area : "+x+","+y);
+		Log.d("rotate","atan2 :"+Math.atan2(xi2, xi1)*180/Math.PI);
+		double sita = Math.atan2(xi2, xi1)*180/Math.PI;
+		return -sita;
+/*		if (x < 0) {
+			if (y < 0) {
+				return -sita;
+			}
+		} else if (y < 0) {
+			return -sita;
+		}
+		return -sita;	*/
 	}
 }

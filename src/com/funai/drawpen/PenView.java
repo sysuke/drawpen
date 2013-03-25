@@ -8,6 +8,7 @@ package com.funai.drawpen;
 
 import java.util.ArrayList;
 
+import android.R.bool;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -911,30 +912,22 @@ public class PenView extends View {
 			DataConvert dataConvert = new DataConvert(
 					new DataConvertEventHandler() {
 					});
-			float rotate = (float) (dataConvert
-					.DataConvert_rotate(point_list_all) * 180 / Math.PI);
-			// if (DEBUG)
-			Log.d(TAG, "rotate:" + rotate);
-			Log.d(TAG, "width:" + mMaxX + " heigth" + mMaxY + " mPenWidth:"
-					+ mPenWidth);
+			float rotate = (float) (dataConvert.DataConvert_rotate(point_list_all));
+			//if (DEBUG)
+				Log.d(TAG, "rotate:" + rotate);
 
 			// 回転マトリックス作成
-			Matrix mat = new Matrix();
-			mat.postRotate(rotate);
-			if (Float.isNaN(rotate)) {
-				Log.d(TAG, "rotate is NaN");
-				return bitmap;
-
+			if (rotate != 0){
+				Matrix mat = new Matrix();
+				mat.postRotate(rotate);
+				// 回転したビットマップを作成
+				Bitmap bitmap_tmp = Bitmap.createBitmap(bitmap, 0, 0, mMaxX
+						+ mPenWidth, mMaxY + mPenWidth, mat, true);
+				return bitmap_tmp;
 			}
-			// 回転したビットマップを作成
-			Bitmap bitmap_tmp = Bitmap.createBitmap(bitmap, 0, 0, mMaxX
-					+ mPenWidth, mMaxY + mPenWidth, mat, true);
-
-			return bitmap_tmp;
-		} else {
-			return bitmap;
 
 		}
+		return bitmap;
 	}
 
 	// 全消し

@@ -11,9 +11,9 @@ public class FurtherCorrect {
 	private boolean DEBUG = true;
 	// 3次多項式で近似
 	final int N = 4;
-	// しきい値
+	//しきい値
 	final int TH = 3;
-	// 許容範囲+-
+	//許容範囲+-
 	final int TOL = 10;
 
 	// ガウス変換
@@ -157,7 +157,7 @@ public class FurtherCorrect {
 		return;
 	}
 
-	// debug用
+	//debug用
 	public void houghTransform(ArrayList<Point> point_list, Path path,
 			PenView penview) {
 		if (DEBUG)
@@ -174,7 +174,7 @@ public class FurtherCorrect {
 				for (j = i + 2; j < point_list.size(); j++) {
 					point_n = point_list.get(j);
 					int y = a * point_n.x + b;
-					if (point_n.y < y + TOL && point_n.y > y - TOL) {
+					if (point_n.y < y+TOL && point_n.y > y-TOL ) {
 						count++;
 					} else {
 						break;
@@ -183,21 +183,19 @@ public class FurtherCorrect {
 			} else {
 				for (j = i + 2; j < point_list.size(); j++) {
 					point_n = point_list.get(j);
-					if (point_n.x < point_1.x + TOL
-							&& point_n.x > point_1.x - TOL) {
+					if (point_n.x < point_1.x+TOL && point_n.x > point_1.x-TOL ) {
 						count++;
 					} else {
 						break;
 					}
 				}
 			}
-			Log.d(TAG, "count:" + count);
+			Log.d(TAG, "count:"+count);
 
-			// 直線抽出時の処理
+			//直線抽出時の処理
 			if (count > TH) {
-				// if (DEBUG)
-				Log.d(TAG, "lineto x:" + (float) point_n.x + " y:"
-						+ (float) point_n.y);
+				//if (DEBUG)
+					Log.d(TAG, "lineto x:"+(float) point_n.x+" y:"+(float) point_n.y);
 				if (last > 2) {
 					ArrayList<Point> tmp_point_list = new ArrayList<Point>();
 					for (int k = i - last; k < i; k++) {
@@ -214,12 +212,12 @@ public class FurtherCorrect {
 
 					path.lineTo((float) point_n.x, (float) point_n.y);
 
-					// debug
+					//debug
 					Path linePath = new Path();
 					linePath.moveTo(point_list.get(i).x, point_list.get(i).y);
 					linePath.lineTo((float) point_n.x, (float) point_n.y);
 					penview.setLine(linePath);
-
+					
 					i = j;
 					last = 0;
 				} else {
@@ -243,12 +241,11 @@ public class FurtherCorrect {
 
 			Ri = bezierCP.calControPoint(tmp_point_list, 20);
 			path.cubicTo((float) Ri[0][0], (float) Ri[0][1], (float) Ri[1][0],
-					(float) Ri[1][1],
-					(float) point_list.get(point_list.size() - 1).x,
-					(float) point_list.get(point_list.size() - 1).y);
+					(float) Ri[1][1], (float) point_list.get(point_list.size()-1).x,
+					(float) point_list.get(point_list.size()-1).y);
 		} else {
-			path.lineTo((float) point_list.get(point_list.size() - 1).x,
-					(float) point_list.get(point_list.size() - 1).y);
+			path.lineTo((float) point_list.get(point_list.size()-1).x,
+					(float) point_list.get(point_list.size()-1).y);
 		}
 
 		return;
@@ -270,7 +267,7 @@ public class FurtherCorrect {
 				for (j = i + 2; j < point_list.size(); j++) {
 					point_n = point_list.get(j);
 					int y = a * point_n.x + b;
-					if (point_n.y < y + TOL && point_n.y > y - TOL) {
+					if (point_n.y < y+TOL && point_n.y > y-TOL ) {
 						count++;
 					} else {
 						break;
@@ -279,21 +276,19 @@ public class FurtherCorrect {
 			} else {
 				for (j = i + 2; j < point_list.size(); j++) {
 					point_n = point_list.get(j);
-					if (point_n.x < point_1.x + TOL
-							&& point_n.x > point_1.x - TOL) {
+					if (point_n.x < point_1.x+TOL && point_n.x > point_1.x-TOL ) {
 						count++;
 					} else {
 						break;
 					}
 				}
 			}
-			Log.d(TAG, "count:" + count);
+			Log.d(TAG, "count:"+count);
 
-			// 直線抽出時の処理
+			//直線抽出時の処理
 			if (count > TH) {
-				// if (DEBUG)
-				Log.d(TAG, "lineto x:" + (float) point_n.x + " y:"
-						+ (float) point_n.y);
+				//if (DEBUG)
+					Log.d(TAG, "lineto x:"+(float) point_n.x+" y:"+(float) point_n.y);
 				if (last > 2) {
 					ArrayList<Point> tmp_point_list = new ArrayList<Point>();
 					for (int k = i - last; k < i; k++) {
@@ -333,12 +328,11 @@ public class FurtherCorrect {
 
 			Ri = bezierCP.calControPoint(tmp_point_list, 20);
 			path.cubicTo((float) Ri[0][0], (float) Ri[0][1], (float) Ri[1][0],
-					(float) Ri[1][1],
-					(float) point_list.get(point_list.size() - 1).x,
-					(float) point_list.get(point_list.size() - 1).y);
+					(float) Ri[1][1], (float) point_list.get(point_list.size()-1).x,
+					(float) point_list.get(point_list.size()-1).y);
 		} else {
-			path.lineTo((float) point_list.get(point_list.size() - 1).x,
-					(float) point_list.get(point_list.size() - 1).y);
+			path.lineTo((float) point_list.get(point_list.size()-1).x,
+					(float) point_list.get(point_list.size()-1).y);
 		}
 
 		return;
