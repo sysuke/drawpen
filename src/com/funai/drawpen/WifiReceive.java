@@ -51,6 +51,7 @@ public class WifiReceive {
 						sSocket.setSoTimeout(timeout);
 						socket = sSocket.accept();
 						socket.setSoTimeout(timeout);
+						buffer = null;
 						Log.d("Wifi","Connected IP : "+socket.getRemoteSocketAddress()+" , Port : "+sSocket.getLocalPort());
 
 						enable = true;
@@ -76,31 +77,35 @@ public class WifiReceive {
 										edPos = chkStr.indexOf(',');
 										x = Integer.valueOf(chkStr.substring(0, edPos));
 										stPos = edPos+1;
+										chkStr = chkStr.substring(stPos);
+									} else {
 										chk = false;
 									}
 			
-									chkStr = chkStr.substring(stPos);
 									if (chk == true && chkStr != null)
 									{
 										edPos = chkStr.indexOf(',');
 										y = Integer.valueOf(chkStr.substring(0, edPos));
 										stPos = edPos+1;
+										chkStr = chkStr.substring(stPos);
+									} else {
 										chk = false;
 									}
 			
-									chkStr = chkStr.substring(stPos);
 									if (chk == true && chkStr != null)
 									{
 										edPos = chkStr.indexOf(',');
 										z = Integer.valueOf(chkStr.substring(0, edPos));
 										stPos = edPos+1;
+										chkStr = chkStr.substring(stPos);
+									} else {
 										chk = false;
 									}
 			
-									chkStr = chkStr.substring(stPos);
 									if (chk == true && chkStr != null)
 									{
 										push = Boolean.valueOf(chkStr);
+									} else {
 										chk = false;
 									}
 								
@@ -121,10 +126,10 @@ public class WifiReceive {
 									}
 								}
 							} catch (SocketTimeoutException e) {
-								if (buffer != null) {
+/*								if (buffer != null) {
 									buffer.close();
 									buffer = null;
-								}
+								}*/
 							} catch (IOException e) {
 								if (buffer != null) {
 									buffer.close();
@@ -173,6 +178,7 @@ public class WifiReceive {
 							e1.printStackTrace();
 							Log.d("Wifi","IOException end");
 						}
+						e.printStackTrace();
 						Log.d("Wifi","IOException");
 					}
 				}
