@@ -99,14 +99,14 @@ public class FurtherCorrect {
 						+ y[i / 2]);
 		}
 
-		/* 初期化 */
+		// 初期化 
 		for (i = 0; i < N; i++) {
 			for (j = 0; j < N + 1; j++) {
 				A[i][j] = 0.0;
 			}
 		}
 
-		/* 行列の作成 */
+		// 行列の作成 
 		for (i = 0; i < N; i++) {
 			for (j = 0; j < N; j++) {
 				for (k = 0; k < listSize; k++) {
@@ -119,10 +119,10 @@ public class FurtherCorrect {
 				A[i][N] += Math.pow(x[k], i) * y[k];
 			}
 		}
-		/* ガウスの消去法の実行 */
+		// ガウスの消去法の実行 
 		gauss(A, xx);
 
-		/* 座標を近似曲線のものに入れ替え */
+		// 座標を近似曲線のものに入れ替え 
 		point_list.clear();
 		if (x[0] < x[listSize - 1]) {
 			for (X = x[0]; X < x[listSize - 1]; X += (x[listSize - 1] - x[0]) / 10.0) {
@@ -251,7 +251,7 @@ public class FurtherCorrect {
 		return;
 	}
 
-	// ハフ変換(を一部流用したハフ変換ではない何か)
+	// ハフ変換
 	public void houghTransform(ArrayList<Point> point_list, Path path) {
 		if (DEBUG)
 			Log.d(TAG, "houghTransform");
@@ -287,7 +287,7 @@ public class FurtherCorrect {
 
 			//直線抽出時の処理
 			if (count > TH) {
-				//if (DEBUG)
+				if (DEBUG)
 					Log.d(TAG, "lineto x:"+(float) point_n.x+" y:"+(float) point_n.y);
 				if (last > 2) {
 					ArrayList<Point> tmp_point_list = new ArrayList<Point>();

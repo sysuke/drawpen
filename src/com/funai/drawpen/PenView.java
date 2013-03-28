@@ -8,7 +8,6 @@ package com.funai.drawpen;
 
 import java.util.ArrayList;
 
-import android.R.bool;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -129,7 +128,7 @@ public class PenView extends View {
 					}
 				}
 
-				// 描画中線分の描画
+				// 補正済み描画中線分の描画
 				if (mPathCor != null && mPaintCor != null) {
 					mPaintCor.setColor(mPenColor);
 					canvas.drawPath(mPathCor, mPaintCor);
@@ -162,15 +161,13 @@ public class PenView extends View {
 		Paint paint = new Paint();
 		canvas.drawBitmap(bitmap, src, dst, paint);
 
-		// 描画中線分の描画
+		// 直線成分の描画
 		if (mPaintBefor != null) {
 			for (int i = 0; i < line_list.size(); i++) {
 				mPaintBefor.setColor(Color.RED);
-
 				canvas.drawPath(line_list.get(i), mPaintBefor);
 			}
 			mPaintBefor.setColor(mPenColor);
-
 		}
 
 		// 変異点の描画
@@ -214,9 +211,9 @@ public class PenView extends View {
 
 			switch (event.getAction()) {
 			case MotionEvent.ACTION_DOWN:
-
 				// 画像送信メッセージ削除
 				sendBitmapHandler.removeMessages(0);
+				
 				if (mFastLine) {
 					point_list_all.clear();
 					mFastLine = false;
@@ -240,7 +237,6 @@ public class PenView extends View {
 					modCoordinate();
 				}
 
-				isPush = true;
 				// pathとpaintの初期化
 				point_list.clear();
 				cp_list.clear();
@@ -256,7 +252,8 @@ public class PenView extends View {
 				mPaintCor.setStrokeCap(Paint.Cap.ROUND);
 				mPaintCor.setStrokeJoin(Paint.Join.ROUND);
 
-				mPaintBefor = mPaintCor;
+				mPaintBefor = new Paint(mPaintCor);
+				isPush = true;
 
 				// 始点入力
 				mPathCor.moveTo(absX, absY);
@@ -332,10 +329,6 @@ public class PenView extends View {
 							if (DEBUG)
 								Log.d(TAG, "absX:" + absX + " absY" + absY);
 
-							// 近似曲線算出
-							FurtherCorrect furtherCorrect = new FurtherCorrect();
-							// furtherCorrect.leastSquare(point_list);
-
 							// 変異点算出
 							BezierCP bezierCP = new BezierCP();
 							Ri = bezierCP.calControPoint(point_list, 20);
@@ -352,26 +345,26 @@ public class PenView extends View {
 										+ "] R1[" + Ri[1][0] + "," + Ri[1][1]
 										+ "]");
 
-							// // ベジェ曲線接続時の変異点修正 if (mFastP) { mFastP = false; }
-							// {
-							// double a = mP0LastY - mP1LastY;
-							// double b = mP1LastX - mP0LastX;
-							// double c = mP0LastX * mP1LastY - mP1LastX
-							// * mP0LastY;
-							//
-							// Ri[0][0] -= (a * Ri[0][0] + b * Ri[0][1] + c)
-							// / (a * a + b * b) * a;
-							// Ri[0][1] -= (a * Ri[0][0] + b * Ri[0][1] + c)
-							// / (a * a + b * b) * b;
-							// }
+							// ベジェ曲線接続時の変異点修正
+							if (mFastP) {
+								mFastP = false;
+							} else {
+								double a = mP0LastY - mP1LastY;
+								double b = mP1LastX - mP0LastX;
+								double c = mP0LastX * mP1LastY - mP1LastX
+										* mP0LastY;
+
+								Ri[0][0] -= (a * Ri[0][0] + b * Ri[0][1] + c)
+										/ (a * a + b * b) * a;
+								Ri[0][1] -= (a * Ri[0][0] + b * Ri[0][1] + c)
+										/ (a * a + b * b) * b;
+							}
 
 							mP0LastX = Ri[1][0];
 							mP0LastY = Ri[1][1];
 							mP1LastX = (double) absX;
 							mP1LastY = (double) absY;
 
-							// furtherCorrect.houghTransform(point_list,
-							// mPathCor, this);
 
 							mPathCor.cubicTo((float) Ri[0][0],
 									(float) Ri[0][1], (float) Ri[1][0],
@@ -912,12 +905,13 @@ public class PenView extends View {
 			DataConvert dataConvert = new DataConvert(
 					new DataConvertEventHandler() {
 					});
-			float rotate = (float) (dataConvert.DataConvert_rotate(point_list_all));
-			//if (DEBUG)
-				Log.d(TAG, "rotate:" + rotate);
+			float rotate = (float) (dataConvert
+					.DataConvert_rotate(point_list_all));
+			// if (DEBUG)
+			Log.d(TAG, "rotate:" + rotate);
 
 			// 回転マトリックス作成
-			if (rotate != 0){
+			if (rotate != 0) {
 				Matrix mat = new Matrix();
 				mat.postRotate(rotate);
 				// 回転したビットマップを作成
@@ -1052,10 +1046,12 @@ public class PenView extends View {
 		mPenActivity = penActivity;
 	}
 
+	// 抽出した直線のPath
 	public void setLine(Path path) {
 		line_list.add(path);
 	}
 
+	//回転処理の角度
 	public void setRotate(boolean rotate) {
 		mRotate = rotate;
 	}

@@ -13,7 +13,7 @@ import android.graphics.Point;
 import android.util.Log;
 
 public class BezierCP {
-	private final   String TAG = "BezierCP";
+	private final String TAG = "BezierCP";
 	private boolean DEBUG = false;
 	private boolean DEBUG2 = false;
 
@@ -21,7 +21,6 @@ public class BezierCP {
 	private final int n = 3;
 	// 許容する評価式の値
 	private final double eval = 0.001;
-
 	// ログ成形用フォーマット
 	private DecimalFormat df1 = new DecimalFormat("0.0000");
 
@@ -219,7 +218,6 @@ public class BezierCP {
 			if (DEBUG2)
 				Log.d(TAG, "delta_t dt:" + Dt + " tx:" + df1.format(t[Dt][0])
 						+ " ty:" + df1.format(t[Dt][1]));
-
 		}
 		return 0;
 	}
@@ -239,7 +237,7 @@ public class BezierCP {
 		for (int i = 0; i < m; i++) {
 			t[i][0] = i * 1 / (double) (m - 1);
 			t[i][1] = i * 1 / (double) (m - 1);
-		}	
+		}
 
 		// 曲線点列入力
 		for (int i = 0; i < point_list.size(); i++) {
@@ -272,6 +270,10 @@ public class BezierCP {
 
 			// パラメタt算出 返り値=1:評価値が基準以下
 			if (deltat(m - 1, Qi, Pi, t) == 1) {
+				if (DEBUG) {
+					Log.d(TAG, "R 1 x:" + Ri[0][0] + " y:" + Ri[0][1]);
+					Log.d(TAG, "R 2 x:" + Ri[1][0] + " y:" + Ri[1][1]);
+				}
 				return Ri;
 			}
 		}
