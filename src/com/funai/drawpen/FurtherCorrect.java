@@ -8,7 +8,7 @@ import android.util.Log;
 
 public class FurtherCorrect {
 	private final String TAG = "FurtherCorrect";
-	private boolean DEBUG = true;
+	private boolean DEBUG = false;
 	// 3次多項式で近似
 	final int N = 4;
 	//しきい値

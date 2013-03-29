@@ -1,0 +1,30 @@
+[ファイル構成]
+src/com/funai/drawpen/
+    BezierCP.java   ベジェ変換処理
+    CoordinateData.java 回転処理へ座標データを送るためのデータクラス
+    DataConvert.java    データ変換処理群 [hata]
+    DataConvertEventHandler.java    上記の変換に時間がかかる場合のCallback用 [hata]
+    DocumentView.java   プレビュー部
+    FurtherCorrect.java 近似＆ハフ変換
+    PenActivity.java    Main Activity
+    PenPrefActivity.java    設定画面
+    PenView.java    描画部
+    ReceiveData.java    Wifi通信用データクラス [hata]
+    RelativeInputView.java  DEBUG用の相対座標入力View
+    WifiEventHandler.java   Wifi通信用イベントハンドラ [hata]
+    WifiReceive.java    wifiレシーバ [hata]
+
+res/drawble/
+    menu_color.xml  ImageButtomで押下時に背景色を変えるカラーセット
+    ツールバーのバタン用画像
+    アイコン画像
+
+res/layout/
+    activity_main.xml メインレイアウト
+
+res/xml/
+    pref.xml    設定画面のレイアウト   
+    
+res/value/
+    string.xml  表示する文字データ群   
+    

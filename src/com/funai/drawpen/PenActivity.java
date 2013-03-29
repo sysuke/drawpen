@@ -47,7 +47,7 @@ public class PenActivity extends Activity implements OnClickListener,
 
 	boolean color_toggle = true;
 	boolean pen_toggle = true;
-	
+
 	boolean rotation_toggle = true;
 
 	final public int UP_DOWN = 0;
@@ -115,20 +115,12 @@ public class PenActivity extends Activity implements OnClickListener,
 
 	WifiReceive wifiRecv;
 	WifiEventHandler wifiHandle;
-	Handler ui_handler = new Handler(); //UIスレッドハンドラ
+	Handler ui_handler = new Handler(); // UIスレッドハンドラ
 	ArrayList<ReceiveData> wifiData = new ArrayList<ReceiveData>();
 
 	DataConvert conv;
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-
-		mSharedPreferences = PreferenceManager
-				.getDefaultSharedPreferences(this);
-
-		setContentView(R.layout.activity_main);
-
+	private void setViewId() {
 		// View取得・リスナーセット
 		toolbarView = (HorizontalScrollView) findViewById(R.id.ScrollView);
 		drawview = (RelativeLayout) findViewById(R.id.draw_layout);
@@ -194,7 +186,7 @@ public class PenActivity extends Activity implements OnClickListener,
 		imgb_erase.setOnClickListener(this);
 		imgb_rotaion = (ImageButton) findViewById(R.id.rotation_btn);
 		imgb_rotaion.setOnClickListener(this);
-		
+
 		imgb_colorblack = (ImageButton) findViewById(R.id.colorblack_btn);
 		imgb_colorblack.setOnClickListener(this);
 		imgb_colorblue = (ImageButton) findViewById(R.id.colorblue_btn);
@@ -226,6 +218,21 @@ public class PenActivity extends Activity implements OnClickListener,
 
 		imgb_undo = (ImageButton) findViewById(R.id.undo_btn);
 		imgb_undo.setOnClickListener(this);
+
+	}
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+		mSharedPreferences = PreferenceManager
+				.getDefaultSharedPreferences(this);
+
+		setContentView(R.layout.activity_main);
+
+		// View取得・リスナーセット
+		setViewId();
+
 		// 画面サイズを取得しプレビューに入力
 		WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
 		Display disp = wm.getDefaultDisplay();
@@ -238,15 +245,14 @@ public class PenActivity extends Activity implements OnClickListener,
 		penView.setSharedPreference(mSharedPreferences);
 		penView.setParentActivity(this);
 		// データ変換関数群
-		conv = new DataConvert(new DataConvertEventHandler(){			
+		conv = new DataConvert(new DataConvertEventHandler() {
 		});
 
 		// Wifi通信処理
-		wifiRecv = new WifiReceive(new WifiEventHandler(){
+		wifiRecv = new WifiReceive(new WifiEventHandler() {
 			@Override
-			public void receiveData(int x, int y, int z, boolean push)
-			{
-				Log.d("Wifi","set Data");
+			public void receiveData(int x, int y, int z, boolean push) {
+				Log.d("Wifi", "set Data");
 				wifiData.add(new ReceiveData(x, y, z, push));
 				Timer time = new Timer();
 				time.schedule(new WifiToDrawTask(), 1);
@@ -262,20 +268,19 @@ public class PenActivity extends Activity implements OnClickListener,
 	public class WifiToDrawTask extends TimerTask {
 		@Override
 		public void run() {
-			// TODO 自動生成されたメソッド・スタブ
 			ui_handler.post(new Runnable() {
 				public void run() {
-					if (wifiData.isEmpty()){
+					if (wifiData.isEmpty()) {
 						return;
 					}
-					Log.d("Wifi","DrawData");
+					Log.d("Wifi", "DrawData");
 					ReceiveData data = new ReceiveData(wifiData.get(0));
 					wifiData.remove(0);
 					penView.setMovePoint(data.push, data.x, data.y);
 				}
 			});
 		}
-		
+
 	}
 
 	@Override
@@ -284,7 +289,6 @@ public class PenActivity extends Activity implements OnClickListener,
 
 		wifiRecv.closeConnection();
 	}
-	
 
 	@Override
 	protected void onResume() {
@@ -328,19 +332,23 @@ public class PenActivity extends Activity implements OnClickListener,
 				canvasIn.setVisibility(Button.INVISIBLE);
 			}
 		}
-		
-		if(rotation_toggle){
-			imgb_rotaion.setImageResource(R.drawable.tool_rotation_on);			
-		}else{
-			imgb_rotaion.setImageResource(R.drawable.tool_rotation_off);			
+
+		if (rotation_toggle) {
+			imgb_rotaion.setImageResource(R.drawable.tool_rotation_on);
+		} else {
+			imgb_rotaion.setImageResource(R.drawable.tool_rotation_off);
 		}
 		penView.setRotate(rotation_toggle);
-		
+
 		wifiConnectStart(32346);
 	}
 
 	@Override
 	public void onClick(View view) {
+		if (view.getId() != R.id.timeconf_btn
+				&& view.getId() != R.id.magnif_btn) {
+			closeNumPic();
+		}
 		switch (view.getId()) {
 
 		// 相対座標入力
@@ -421,12 +429,12 @@ public class PenActivity extends Activity implements OnClickListener,
 			}
 			break;
 		case R.id.rotation_btn:
-			if(rotation_toggle){
-				rotation_toggle=false;
-				imgb_rotaion.setImageResource(R.drawable.tool_rotation_off);			
-			}else{
-				rotation_toggle=true;
-				imgb_rotaion.setImageResource(R.drawable.tool_rotation_on);			
+			if (rotation_toggle) {
+				rotation_toggle = false;
+				imgb_rotaion.setImageResource(R.drawable.tool_rotation_off);
+			} else {
+				rotation_toggle = true;
+				imgb_rotaion.setImageResource(R.drawable.tool_rotation_on);
 			}
 			penView.setRotate(rotation_toggle);
 
@@ -532,14 +540,7 @@ public class PenActivity extends Activity implements OnClickListener,
 
 		// ツールバー表示/非表示切り替え
 		case R.id.bt_toolOut:
-			if (!waitt_toggle) {
-				waitt_toggle = true;
-				waittimeview.setVisibility(RelativeLayout.INVISIBLE);
-			}
-			if (!color_toggle) {
-				color_toggle = true;
-				colorview.setVisibility(RelativeLayout.INVISIBLE);
-			}
+
 			slideOut(LEFT_RIGHT);
 			break;
 		case R.id.bt_toolIn:
@@ -552,6 +553,17 @@ public class PenActivity extends Activity implements OnClickListener,
 		case R.id.bt_canvasIn:
 			slideIn(UP_DOWN);
 			break;
+		}
+	}
+
+	public void closeNumPic() {
+		if (!waitt_toggle) {
+			waitt_toggle = true;
+			waittimeview.setVisibility(RelativeLayout.INVISIBLE);
+		}
+		if (!mag_toggle) {
+			mag_toggle = true;
+			magnifview.setVisibility(RelativeLayout.INVISIBLE);
 		}
 	}
 

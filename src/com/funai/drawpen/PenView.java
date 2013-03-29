@@ -191,6 +191,9 @@ public class PenView extends View {
 
 	// タッチイベントによる描画
 	public boolean onTouchEvent(MotionEvent event) {
+		// 時間設定・倍率設定用NumPickerを非表示に
+		mPenActivity.closeNumPic();
+
 		if (mSharedPreferences.getBoolean("ch_touch_event", false)) {
 			absX = (int) event.getX();
 			absY = (int) event.getY();
@@ -213,7 +216,7 @@ public class PenView extends View {
 			case MotionEvent.ACTION_DOWN:
 				// 画像送信メッセージ削除
 				sendBitmapHandler.removeMessages(0);
-				
+
 				if (mFastLine) {
 					point_list_all.clear();
 					mFastLine = false;
@@ -325,9 +328,12 @@ public class PenView extends View {
 					// 極大で曲線切断
 					if (saX < mLoMaxX || saY < mLoMaxY) {
 						if (mLineCount > 3) {
-							mLineCount = 0;
 							if (DEBUG)
 								Log.d(TAG, "absX:" + absX + " absY" + absY);
+
+							mLineCount = 0;
+							mBaseX = absX;
+							mBaseY = absY;
 
 							// 変異点算出
 							BezierCP bezierCP = new BezierCP();
@@ -364,7 +370,6 @@ public class PenView extends View {
 							mP0LastY = Ri[1][1];
 							mP1LastX = (double) absX;
 							mP1LastY = (double) absY;
-
 
 							mPathCor.cubicTo((float) Ri[0][0],
 									(float) Ri[0][1], (float) Ri[1][0],
@@ -416,11 +421,6 @@ public class PenView extends View {
 						CoordinateData.UP));
 
 				if (mLineCount > 2) {
-					// 変異点算出
-					// FurtherCorrect furtherCorrect= new FurtherCorrect();
-					// furtherCorrect.houghTransform(point_list, mPathCor,
-					// this);
-
 					BezierCP bezierCP = new BezierCP();
 					Ri = bezierCP.calControPoint(point_list, 20);
 					if (DEBUG)
@@ -591,6 +591,9 @@ public class PenView extends View {
 	// 相対座標入力による描画
 	public boolean setMovePoint(boolean push, int x, int y) {
 		Log.d(TAG, "X" + x + " Y" + y + " push" + push);
+		// 時間設定・倍率設定用NumPickerを非表示に
+		mPenActivity.closeNumPic();
+
 		x *= mMagnif;
 		y *= mMagnif;
 
@@ -634,7 +637,6 @@ public class PenView extends View {
 					modCoordinate();
 				}
 
-				isPush = true;
 				// pathとpaintの初期化
 				point_list.clear();
 				cp_list.clear();
@@ -650,7 +652,8 @@ public class PenView extends View {
 				mPaintCor.setStrokeCap(Paint.Cap.ROUND);
 				mPaintCor.setStrokeJoin(Paint.Join.ROUND);
 
-				mPaintBefor = mPaintCor;
+				mPaintBefor = new Paint(mPaintCor);
+				isPush = true;
 
 				// 始点入力
 				mPathCor.moveTo(absX, absY);
@@ -709,23 +712,31 @@ public class PenView extends View {
 				int vecY = Math.abs(mMiddleY - absY);
 
 				double vec = Math.sqrt((double) (vecX * vecX + vecY * vecY));
-				if (vec > 20) {
+				if (DEBUG)
+					Log.d(TAG, "vec:" + vec + " vecx:" + vecX + " vecy:" + vecY);
+
+				// 補正前曲線座標入力
+				mPathBefor.lineTo(absX, absY);
+
+				point_list.add(new Point(absX, absY));
+				point_list_all.add(new CoordinateData(absX, absY,
+						CoordinateData.MOVE));
+
+				if (vec > 20.0) {
+
 					mMiddleX = absX;
-					mMiddleX = absY;
-
-					// 補正前曲線座標入力
-					mPathBefor.lineTo(absX, absY);
-
-					point_list.add(new Point(absX, absY));
-					point_list_all.add(new CoordinateData(absX, absY,
-							CoordinateData.MOVE));
+					mMiddleY = absY;
 
 					// 極大で曲線切断
 					if (saX < mLoMaxX || saY < mLoMaxY) {
-						if (mLineCount > 2) {
-							mLineCount = 0;
+						if (mLineCount > 3) {
 							if (DEBUG)
 								Log.d(TAG, "absX:" + absX + " absY" + absY);
+
+							mLineCount = 0;
+							mBaseX = absX;
+							mBaseY = absY;
+
 							// 変異点算出
 							BezierCP bezierCP = new BezierCP();
 							Ri = bezierCP.calControPoint(point_list, 20);
@@ -804,9 +815,7 @@ public class PenView extends View {
 				point_list_all.add(new CoordinateData(absX, absY,
 						CoordinateData.UP));
 
-				// 変異点算出
-				if (mLineCount > 1) {
-					// 変異点算出
+				if (mLineCount > 2) {
 					BezierCP bezierCP = new BezierCP();
 					Ri = bezierCP.calControPoint(point_list, 20);
 					if (DEBUG)
@@ -851,6 +860,7 @@ public class PenView extends View {
 				mFastP = true;
 				isPush = false;
 			}
+			invalidate();
 		}
 		return true;
 	}
@@ -1051,7 +1061,7 @@ public class PenView extends View {
 		line_list.add(path);
 	}
 
-	//回転処理の角度
+	// 回転処理の角度
 	public void setRotate(boolean rotate) {
 		mRotate = rotate;
 	}
